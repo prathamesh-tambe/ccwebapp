@@ -54,7 +54,7 @@ export default ({ config, db }) => {
 					throw error;
 				}else{
   					if(results.length > 0){
-						bcrypt.compare(myPlaintextPassword, results[0].password, function(err, resv) {
+						bcrypt.compare(password, results[0].password, function(err, resv) {
 							console.log("res---------",resv);    				
 							// res == true
 							if (error) throw error;	
