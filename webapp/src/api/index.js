@@ -133,6 +133,26 @@ export default ({ config, db }) => {
 				}
 			}
 		});
+	});
+
+
+
+		api.get('/book' , (req, res )=>{
+		
+
+			//res.json({msg : 'in book api'});
+		
+		db.query( "SELECT * From book", function(err, result, field){
+
+			if (err) throw res.status(400).json({ message:'Error occurred' });
+            		if(result.length > 0)
+            		res.json(result);
+            		res.status(204).json({ message:'No Content' });
+		
+		
+
+	 });
+		
 
 		//console.log(checkUser(username));
 				
@@ -157,6 +177,6 @@ export default ({ config, db }) => {
 		//});
 		
 				
-	})
+	});
 	return api;
 }
