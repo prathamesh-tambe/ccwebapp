@@ -206,7 +206,6 @@ export default ({ config, db }) => {
 			res.status(400).json({ message:"Bad Request" });
 		}		
 		
-<<<<<<< HEAD
 	});
 	
 	//Book update Api	
@@ -254,9 +253,5 @@ export default ({ config, db }) => {
 		}
     	});
 
-=======
-				
-	});
->>>>>>> b6af054bef8abb6090948db6c17cbd46d0999046
 	return api;
 }
