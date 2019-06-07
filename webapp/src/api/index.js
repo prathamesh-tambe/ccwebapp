@@ -84,7 +84,7 @@ export default ({ config, db }) => {
 	
 			db.query('SELECT * FROM user WHERE username = ?',[username], function (error, results, fields) {
 				if (error) {
-					throw error;
+					res.status(401).json({ message : 'No such user' });
 				}else{
 					if(results.length > 0){
 						bcrypt.compare(password, results[0].password, function(err, resv) {
@@ -95,12 +95,12 @@ export default ({ config, db }) => {
 								next();
 								//res.json({ crrdate : new Date().toISOString() });
 							}else{
-								res.json({ message : 'password does not match' });
+								res.status(401).json({ message : 'password does not match' });
 							}
 						});	
 					}else{
 						console.log('Data is false', results.length)
-						res.json({ message : 'user does not exists' });
+						res.status(401).json({ message : 'user does not exists' });
 					}
 				}
 			});
@@ -111,7 +111,7 @@ export default ({ config, db }) => {
 	    api.get('/book/:id', function (req, res){
 		var bookid=req.params.id;
 		db.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
-		    if(erro) throw erro;
+		    if(erro) res.status(404).json({message:"Not Found"});
 		    if(find){
 		        res.json(find);
 		    }
@@ -125,12 +125,9 @@ export default ({ config, db }) => {
 		
 		db.query( "SELECT * From book", function(err, result, field){
 
-			if (err) throw res.status(400).json({ message:'Error occurred' });
-            		if(result.length > 0)
-            		res.json(result);
-            		res.status(204).json({ message:'No Content' });
-		
-		
+			if (err) res.status(400).json({ message:'Error occurred' });
+            		if(result.length > 0){res.json(result);}
+            		else{res.status(204).json({message:"No Content"});}
 		 });
 
 	 });
@@ -139,7 +136,7 @@ export default ({ config, db }) => {
 	api.delete('/book/:id', function (req, res){
 	    var bookid=req.params.id;
 	    db.query('DELETE FROM book WHERE id = ?',[bookid],function (error) {
-	        if(error) throw error;
+	        if(error) res.status(204).json({message:"No Content"});
 	        else{
 	            res.json({message:"delete successfully"});
 	        }
