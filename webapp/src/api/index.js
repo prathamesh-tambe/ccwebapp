@@ -116,7 +116,24 @@ export default ({ config, db }) => {
 		        res.json(find);
 		    }
 		});
-	    });
+	});
+
+		api.get('/book' , (req, res )=>{
+		
+
+			//res.json({msg : 'in book api'});
+		
+		db.query( "SELECT * From book", function(err, result, field){
+
+			if (err) throw res.status(400).json({ message:'Error occurred' });
+            		if(result.length > 0)
+            		res.json(result);
+            		res.status(204).json({ message:'No Content' });
+		
+		
+
+	 });
+		
 
 	//DELETE /book/{id}
 	api.delete('/book/:id', function (req, res){
@@ -189,6 +206,7 @@ export default ({ config, db }) => {
 			res.status(400).json({ message:"Bad Request" });
 		}		
 		
+<<<<<<< HEAD
 	});
 	
 	//Book update Api	
@@ -236,5 +254,9 @@ export default ({ config, db }) => {
 		}
     	});
 
+=======
+				
+	});
+>>>>>>> b6af054bef8abb6090948db6c17cbd46d0999046
 	return api;
 }
