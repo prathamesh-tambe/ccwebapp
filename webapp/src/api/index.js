@@ -118,10 +118,10 @@ export default ({ config, db }) => {
 		});
 	});
 
-		api.get('/book' , (req, res )=>{
-		
 
-			//res.json({msg : 'in book api'});
+
+	api.get('/book' , (req, res )=>{
+		//res.json({msg : 'in book api'});
 		
 		db.query( "SELECT * From book", function(err, result, field){
 
@@ -131,9 +131,9 @@ export default ({ config, db }) => {
             		res.status(204).json({ message:'No Content' });
 		
 		
+		 });
 
 	 });
-		
 
 	//DELETE /book/{id}
 	api.delete('/book/:id', function (req, res){
@@ -204,8 +204,7 @@ export default ({ config, db }) => {
 			});
 		}else{
 			res.status(400).json({ message:"Bad Request" });
-		}		
-		
+		}				
 	});
 	
 	//Book update Api	
