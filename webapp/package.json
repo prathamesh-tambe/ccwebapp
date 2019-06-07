@@ -34,8 +34,9 @@
     "cors": "^2.7.1",
     "express": "^4.13.3",
     "morgan": "^1.8.0",
-    "mysql": "^2.17.1",
-    "resource-router-middleware": "^0.6.0"
+    "resource-router-middleware": "^0.6.0",
+    "uuid": "^3.3.2",
+    "mysql": "^2.17.1"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
