@@ -1,20 +1,15 @@
-# CSYE 6225 - Summer 2019
+# CSYE - 6225 (Library management System Api)
+==================================
 
-## Team Information
+## Getting Started
 
-| Name | NEU ID | Email Address |
-| --- | --- | --- |
-| Prathamesh Tambe  | 001494644 | tambe.p@husky.neu.edu |
-| Jiawei Zhao | 001495711 | zhao.jiawe@husky.neu.edu  |
-| Ishita Chausalkar | 001448216 | chausalkar.i@husky.neu.edu  |
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for Bookes.
 
+### Prerequisites
 
-## Technology Stack
+To run this you need to have postman,nodejs,mysql and npm installed on your machine. 
 
-To run this you need to have postman,nodejs,mysql and npm installed on your machine.
-
-
-## Build Instructions
+### How to use
 
 Git clone this repo on your local machine.
 
@@ -68,21 +63,27 @@ and for testing run following command.
 	mocha
 ```
 
+## Built With
 
-## Deploy Instructions
+* [NodeJs](https://nodejs.org/en/) - Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine.
 
-Its explained in Build sections above;
+* [MySQL](https://www.mysql.com/) - MySQL is the world's most popular open source database. With its proven performance, reliability and ease-of-use, MySQL has become the leading database choice for web-based applications, used by high profile web properties including Facebook, Twitter, YouTube, Yahoo! and many more.
 
-## Running Tests
+* [bcrypt](https://www.npmjs.com/package/bcrypt) - A library to help you hash passwords.
 
-Implemented and checks Unit tests 
+## Versioning
 
-and for testing run following command.
+We use [github](https://github.com/) for versioning. For the versions available, see the [tags on this repository](https://github.com/prathamesh-tambe/webapp). 
 
-```
-	mocha
-```
+## Group members
 
-## CI/CD
+**Prahamesh Tambe** - tambe.p@husky.neu.edu
 
+**Ishita Chausalkar** - chausalkar.i@husky.neu.edu
+
+**Jiawei Zhao** - zhao.jiawe@husky.neu.edu
+
+## Acknowledgments
+
+Used this link for boilerplate - [github.com](https://github.com/developit/express-es6-rest-api)
 
