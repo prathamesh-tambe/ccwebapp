@@ -87,3 +87,11 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+# Intellij .idea files
+.idea/
+
+#package-lock.json
+package-lock.json
+
+#webapp.iml
+webapp.iml

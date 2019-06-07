@@ -18,19 +18,19 @@ Run following query commands in mysql
 create Books database in mysql and create following table in it
 
 ```
--	CREATE TABLE `user` (
--	`id` INT NOT NULL AUTO_INCREMENT,
--	`username` VARCHAR(255) NOT NULL,
--	`password` VARCHAR(255) NOT NULL,
--	`cdate` TIMESTAMP NOT NULL,
--	PRIMARY KEY (`id`)
--	) ENGINE=InnoDB;
+	CREATE TABLE `user` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`username` VARCHAR(255) NOT NULL,
+	`password` VARCHAR(255) NOT NULL,
+	`cdate` TIMESTAMP NOT NULL,
+	PRIMARY KEY (`id`)
+	) ENGINE=InnoDB;
 ```
 
 and run following commands 
 
 ```
--	cd ../webapp/webapp
+-	cd ccwebapp/webapp
 -	npm install
 -	npm start	
 ```
@@ -64,6 +64,8 @@ We use [github](https://github.com/) for versioning. For the versions available,
 **Prahamesh Tambe** - tambe.p@husky.neu.edu
 
 **Ishita Chausalkar** - chausalkar.i@husky.neu.edu
+
+**Jiawei Zhao** - zhao.jiawe@husky.neu.edu
 
 ## Acknowledgments
 

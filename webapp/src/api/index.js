@@ -107,6 +107,28 @@ export default ({ config, db }) => {
 		}		
 	});
 
+	//get /book/{id}
+	    api.get('/book/:id', function (req, res){
+		var bookid=req.params.id;
+		db.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
+		    if(erro) throw erro;
+		    if(find){
+		        res.json(find);
+		    }
+		});
+	    });
+
+	//DELETE /book/{id}
+	api.delete('/book/:id', function (req, res){
+	    var bookid=req.params.id;
+	    db.query('DELETE FROM book WHERE id = ?',[bookid],function (error) {
+	        if(error) throw error;
+	        else{
+	            res.json({message:"delete successfully"});
+	        }
+	    });
+	});
+
 	// mount the facets resource
 	//api.use('/facets', facets({ config, db }));
 
