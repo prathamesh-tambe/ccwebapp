@@ -1,4 +1,4 @@
-# CSYE - 6225 (User Api)
+# CSYE - 6225 (Library management System Api)
 ==================================
 
 ## Getting Started
@@ -15,7 +15,7 @@ Git clone this repo on your local machine.
 
 Run following query commands in mysql
 
-create Books database in mysql and create following table in it
+create 'books' database in mysql and create following table in it
 
 ```
 	CREATE TABLE `user` (
@@ -27,25 +27,41 @@ create Books database in mysql and create following table in it
 	) ENGINE=InnoDB;
 ```
 
+```
+	CREATE TABLE `books`.`book` (
+  	`id` VARCHAR(255) NOT NULL,
+  	`title` VARCHAR(255) NOT NULL,
+  	`author` VARCHAR(100) NULL,
+  	`isbn` VARCHAR(255) NULL,
+  	`quantity` INT NULL,
+  	PRIMARY KEY (`id`));
+```
+
 and run following commands 
 
 ```
 -	cd ccwebapp/webapp
 -	npm install
--	npm start	
+-	node index.js	
 ```
 
-and then open http://localhost:8080 on postman to check following scenarios.
+and then open http://localhost:3000 on postman to check following scenarios.
 
-1. 	Create new user by accessing http://localhost:8080/user/register with username and password in postman using content type - application/json.
+1. 	Create new user by accessing http://localhost:3000/user/register with username and password in postman using content type - application/json.
 	-	if user already exists then it will print user already exists.
 	-	else it will create user with generating bcrypt encoded hash.
 
-2.	When user access this http://localhost:8080 url without passing basic authentication it will return error message.
+2.	When user access this http://localhost:3000 url without passing basic authentication it will return error message.
 	-	if user passes valid creds then it will show current date in json response.		
 
-3.	It satisfies all user stories required in assignment00.01.
+3.	It satisfies all user stories required in assignment00.01 and assignment1.
 
+
+and for testing run following command.
+
+```
+	mocha
+```
 
 ## Built With
 
