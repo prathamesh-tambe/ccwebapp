@@ -73,5 +73,34 @@ describe('book', function() {
 				done();
 			});
 	});
+
+	it('should list ALL books on /book GET', function(done) {
+		chai.request(server)
+		.get('/book')
+		.auth(username,password)
+		.end(function(err, res){
+		 res.should.have.status(200);
+		 res.should.be.json;
+				  res.body.should.be.a('array');
+		 done();
+		});
+		});
+		
+		it('should update a SINGLE book on /book PUT', function(done) {
+		chai.request(server)
+		 .put('/book')
+		 .auth(username,password)
+		 .send({"id":"12345ascac",
+		 "title": "Cloud computing",
+		 "author": "Tejas PArikh",
+		 "isbn": "978-0132126953",
+		 "quantity": 50})
+		 .end(function(err, res){
+		res.should.have.status(200);
+		res.body.should.have.property('message');
+		res.body.message.should.equal('Content updated successfully');
+		done();
+		 });
+		 });
 });
 

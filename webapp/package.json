@@ -1,5 +1,5 @@
 {
-  "name": "Library Management Api",
+  "name": "Library_Management_Api",
   "version": "1.0.0",
   "description": "Simple Example of nodejs to create rest call using MySQL",
   "main": "index.js",
