@@ -3,6 +3,8 @@ import { Router } from 'express';
 import facets from './facets';
 import bcrypt from 'bcrypt';
 import uuidv4 from 'uuid/v4';
+import * as EmailValidator from 'email-validator';
+
 
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
@@ -36,8 +38,12 @@ export default ({ config, db }) => {
 	api.post('/user/register',(req,res)=>{
 		let username = req.body.username;
 		let pass = req.body.password;
-		console.log('req----',req.body.username,req.body.password);
+		console.log('req----',req.body.username,req.body.password, EmailValidator.validate(username));
+		if(!EmailValidator.validate(username)){
+			return res.status(401).json({ message: 'Email Id not valid' });
+		}
 		
+
 		db.query('SELECT * FROM user WHERE username = ?',[username], function (error, results, fields) {
   			if (error) {
 				throw error;
@@ -112,9 +118,12 @@ export default ({ config, db }) => {
 		var bookid=req.params.id;
 		db.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
 		    if(erro) res.status(404).json({message:"Not Found"});
-		    if(find){
+		    if(find.length>0){
 		        res.json(find);
-		    }
+			}
+			else {
+				res.status(404).json({message:"Not Found"});
+			}
 		});
 	});
 
