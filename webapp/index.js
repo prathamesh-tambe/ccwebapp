@@ -448,8 +448,7 @@ app.post('/user/register',(req,res)=>{
 			if(allowedformats.indexOf(ext) != -1){
 				connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 					if(erro) res.status(404).json({message:"Not Found"});
-					console.log("------find-------",find)
-					if(find[0].image == null){
+					if(find.length > 0 && find[0].image == null){
 						var imgId = uuidv4();
 						connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 							if(erro) res.status(404).json({message:"Not Found"});
@@ -491,7 +490,7 @@ app.post('/user/register',(req,res)=>{
 					console.log(JSON.stringify(err));
 					res.status(400).json({message:"Image formats allowed png,jpg or jpeg"});	
 				}else if(err == 2){
-					res.status(400).json({message:"fail saving image"});
+					res.status(404).json({message:"book doesnot exists"});
 				}else{
 					res.status(403).json({message:"Error occured"});
 				}
