@@ -6,6 +6,14 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 var uuidv4 = require('uuid/v4');
 var EmailValidator = require('email-validator');
+var multer = require('multer');
+var path = require('path');
+var url = require('url');
+const fs = require('fs');
+
+//global common variables
+var imageDir = "images/";
+var imagePath = "http://localhost:3000/"+imageDir;
 
 //start mysql connection
 var connection = mysql.createConnection({
@@ -58,7 +66,7 @@ app.get('/customer', function (req, res) {
 app.post('/user/register',(req,res)=>{
 		let username = req.body.username;
 		let pass = req.body.password;
-		console.log('req----',req.body.username,req.body.password, EmailValidator.validate(username));
+		console.log('req----',req.body,req.body.password, EmailValidator.validate(username));
 		if(!EmailValidator.validate(username)){
 			return res.status(401).json({ message: 'Email Id not valid' });
 		}
@@ -164,12 +172,35 @@ app.post('/user/register',(req,res)=>{
 	//DELETE /book/{id}
 	app.delete('/book/:id', function (req, res){
 	    var bookid=req.params.id;
-	    connection.query('DELETE FROM book WHERE id = ?',[bookid],function (error) {
-	        if(error) res.status(204).json({message:"No Content"});
-	        else{
-	            res.json({message:"delete successfully"});
-	        }
-	    });
+	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
+			if(error) res.status(204).json({message:"No Content to delete"});
+			if(resultB.length > 0){
+				connection.query('DELETE FROM book WHERE id = ?',[bookid],function (error,result, field) {
+					if(error || !result){ 
+						res.status(204).json({message:"No Content"});
+					}else{
+						if(resultB[0].image != null){
+							connection.query('SELECT * FROM image WHERE id = ?',[resultB[0].image],function (error,resultSelect, field) {
+								if(error) res.status(204).json({message:"No image Content to delete"}); 
+								if(resultSelect.length > 0){
+									connection.query('DELETE FROM image WHERE id = ?',[resultB[0].image],function (error,resulti, field) {
+										if(error) res.status(204).json({message:"No image Content to delete"}); 
+										fs.unlink(imageDir+resultSelect[0].url);
+										res.json({message:"deleted successfully"});
+									});
+								}else{
+									res.status(404).json({message:"image does not exists in table"});
+								}	
+							});		
+						}else{
+							res.json({message:"deleted successfully"});
+						}
+					}
+				});
+			}else{
+				res.status(204).json({message:"No Content to delete"});
+			} 
+		});	
 	});
 
 	// mount the facets resource
@@ -276,6 +307,184 @@ app.post('/user/register',(req,res)=>{
 		}else{
 			res.status(400).json({ message:"Bad Request" });
 		}
-    	});
+    });
+
+
+	var storage = multer.diskStorage({
+		destination: function (req, file, cb) {
+		  cb(null, imageDir)
+		},
+		filename: function (req, file, cb) {
+		if(req.do=='update'){	
+			ext = path.extname(file.originalname);
+			allowedformats = ['.jpg','.jpeg','.png'];  
+			console.log(" exttion cascasc hyat aahe value ",allowedformats.indexOf(ext),file);
+			if(allowedformats.indexOf(ext) != -1){
+				connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
+					if(erro) res.status(403).json({message:"Error occurred"});
+					if(find.length == 0){ cb(3); }else{
+					if(find[0].image != null){
+						connection.query('UPDATE image SET url=? WHERE id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
+							if(erro) res.status(404).json({message:"Not Found"});
+							if(findR.affectedRows){
+								console.log("imgId+ext------",find[0].image+ext);
+								cb(null, find[0].image+ext);										
+							}else {
+								cb(3);
+							}
+						});
+					}else {
+						cb(2);
+					}
+					}
+				});
+							
+			}else{
+				cb(1);		// 1 for not match 
+			}
+		}else{
+			ext = path.extname(file.originalname);
+			allowedformats = ['.jpg','.jpeg','.png'];  
+			console.log(" exttion value ",allowedformats.indexOf(ext),file);
+			if(allowedformats.indexOf(ext) != -1){
+				connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
+					if(erro) res.status(404).json({message:"Not Found"});
+					console.log("------find-------",find)
+					if(find[0].image == null){
+						var imgId = uuidv4();
+						connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
+							if(erro) res.status(404).json({message:"Not Found"});
+							if(findRe.affectedRows > 0){
+								connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
+									if(erro) res.status(404).json({message:"Not Found"});
+									if(findR.affectedRows){
+										cb(null, imgId+ext);										
+									}else {
+										cb(3);
+									}
+								});
+							}else {
+								cb(3);
+							}
+						});
+						
+					}else {
+						cb(2);
+					}
+				});	
+					
+			}else{
+				cb(1);		// 1 for not match 
+			}				
+		}
+		}
+	})
+	  
+	var upload = multer({ storage: storage }).single('image');
+
+	app.post('/book/:id/image', (req, res) => {
+	//console.log("--------------",req.route);
+		req.do = 'upload';
+		upload(req, res, function (err) {
+			console.log("req--------0",err);
+			if (err){
+				if(err == 1){
+					console.log(JSON.stringify(err));
+					res.status(400).json({message:"Image formats allowed png,jpg or jpeg"});	
+				}else if(err == 2){
+					res.status(400).json({message:"fail saving image"});
+				}else{
+					res.status(403).json({message:"Error occured"});
+				}
+			} else {
+				console.log("ascascascascac---------",req.file);
+				res.json({id:req.file.filename.split('.').slice(0, -1).join('.'),url:imagePath+req.file.filename});
+			}
+		});
+	});
+
+	app.put('/book/:id/image/:imgid', (req, res) => {
+		req.do = 'update';
+		console.log("--------req----------",req);
+		upload(req, res, function (err) {
+			console.log("req--------0",err);
+			if (err){
+				if(err == 1){
+					console.log(JSON.stringify(err));
+					res.status(400).json({message:"Image formats allowed png,jpg or jpeg"});	
+				}else if(err == 2){
+					res.status(404).json({message:"Image does not Exists"});
+				}else if(err == 3){
+					res.status(404).json({message:"Book does not exists"});
+				}else{
+					res.status(403).json({message:"Error occured"});
+				}
+			} else {
+				console.log("ascascascascac---------",req.file);
+				res.json({id:req.file.filename,url:imagePath+req.file.filename});
+			}
+		});		
+	});	
+
+	app.delete('/book/:id/image/:imgid', (req, res) => {
+		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
+			if(erro) res.status(403).json({message:"Error occurred"});
+			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
+				if(find[0].image != null){
+					connection.query('SELECT * FROM image WHERE id = ?',[req.params.imgid],function (error,resultSelect, field) {
+						if(error) res.status(204).json({message:"No image Content to delete"}); 
+						if(resultSelect.length > 0){
+							if(resultSelect[0].id == find[0].image){
+							connection.query('DELETE FROM image WHERE id = ?',[find[0].image],function (error,resulti, field) {
+								if(error) res.status(204).json({message:"No image Content to delete"}); 
+								if(resulti.affectedRows){
+									fs.unlink(imageDir+resultSelect[0].url);
+									connection.query('UPDATE book SET image=? WHERE id =?',[null,req.params.id],function (erro, findR) {
+										if(erro) res.status(404).json({message:"Not Found"});
+										if(findR.affectedRows){
+											res.json({message:"deleted successfully"});
+										}	
+									});
+								}else{
+									res.status(204).json({message:"No image Content to delete"});
+								}
+							});
+							}else{
+								res.status(404).json({message:"Image doesnot belong to this book"});	
+							}
+						}else{
+							res.status(404).json({message:"image does not exists in table"});
+						}	
+					});		
+				}else {
+					res.status(404).json({message:"Book does not Exists"});
+				}
+			}
+		});	
+	});	
+
+	app.get('/book/:id/image/:imgid', (req, res) => {
+		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
+			if(erro) res.status(403).json({message:"Error occurred"});
+			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
+				if(find[0].image != null){
+					connection.query('SELECT * FROM image WHERE id = ?',[req.params.imgid],function (error,resultSelect, field) {
+						if(error) res.status(204).json({message:"No image Content to delete"}); 
+						if(resultSelect.length > 0){
+							if(resultSelect[0].id == find[0].image){
+								res.json({id:resultSelect[0].id,url:imagePath+resultSelect[0].url});
+							}else{
+								res.status(404).json({message:"Image doesnot belong to this book"});	
+							}
+						}else{
+							res.status(404).json({message:"image does not exists in table"});
+						}	
+					});		
+				}else {
+					res.status(404).json({message:"Book does not Exists"});
+				}
+			}
+		});	
+	});	
 
 module.exports = app;
