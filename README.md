@@ -42,6 +42,21 @@ create 'books' database in mysql and create following table in it
   	PRIMARY KEY (`id`));
 ```
 
+To add image field in Book table run following query
+
+```
+
+ALTER TABLE books ADD COLUMN image VARCHAR(255) AFTER quantity;
+```
+
+To create image table with id and url run following query
+
+```
+
+CREATE TABLE `image` (`id` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NULL);
+```
+
+
 and run following commands 
 
 ```
