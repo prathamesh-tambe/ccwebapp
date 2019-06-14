@@ -296,7 +296,7 @@ app.post('/user/register',(req,res)=>{
 		let author = (req.body.author) ? req.body.author.trim() : '';
 		let isbn = (req.body.isbn) ? req.body.isbn.trim() : '';
 		let quantity = req.body.quantity;
-		let url = (req.body.image) ? req.body.image[0].url.trim() : '';
+		let url = (req.body.image) ? req.body.image.url.trim() : '';
 		
 		if(title.length > 0 && author.length > 0 && isbn.length > 0 && Number.isInteger(quantity) && quantity > 0){			
 			var imageid = null;
@@ -309,7 +309,7 @@ app.post('/user/register',(req,res)=>{
 				}else{
 					//console.log("result-----",results);
 					if(results){
-						connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imageid,imageid+ext],function (erro, findRe) {
+						connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imageid,url],function (erro, findRe) {
 							if(erro) res.status(404).json({message:"error occured while inserting image"});
 							if(findRe.affectedRows > 0){
 								res.status(201).json({ message:'created' });
