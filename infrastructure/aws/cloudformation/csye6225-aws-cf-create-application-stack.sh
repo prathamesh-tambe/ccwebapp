@@ -24,11 +24,14 @@ aws ec2 describe-vpcs --vpc-ids $vpcId --query 'Vpcs[*].Tags[*]' --output text
 echo "Input the name of vpc:"
 read vpcname
 
-subnet1=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcId}-public-az1" --query 'Subnets[*].{id:SubnetId}' --output text`
+subnet1=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az1" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo "Subnet1:"
 echo $subnet1
-subnet2=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcId}-public-az2" --query 'Subnets[*].{id:SubnetId}' --output text`
+subnet2=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az2" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo "Subnet2:"
 echo $subnet2
-subnet3=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcId}-public-az3" --query 'Subnets[*].{id:SubnetId}' --output text`
+subnet3=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az3" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo "Subnet3:"
 echo $subnet3
 
 

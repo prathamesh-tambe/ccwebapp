@@ -54,8 +54,7 @@
             "Type":"AWS::RDS::DBSubnetGroup",
             "Properties":{
                 "DBSubnetGroupDescription" : "Subnet description of db subnets",
-                "SubnetIds":[{"Ref":"subnet1"},
-                  {"Ref":"subnet2"}]
+                "SubnetIds":[{"Ref":"subnet1"},{"Ref":"subnet2"}]
             }
         },
         "webappsecuritygroup": {
@@ -88,7 +87,7 @@
         "dbsecuritygroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "VpcId":{"Ref":"subnet1"},
+                "VpcId":{"Ref":"vpcId"},
                 "GroupDescription" : "Ec2 security group for DB",
                 "SecurityGroupIngress": [
                     {
@@ -136,7 +135,7 @@
                 "MasterUserPassword" : "csye6225password",
                 "DBSubnetGroupName" : {"Ref": "dbsubnetgroup"},
                 "PubliclyAccessible" : true,
-                "DBName" : {"csye6225"},
+                "DBName" : "csye6225",
                 "Port":"3306",
                 "VPCSecurityGroups" : [ {"Ref": "dbsecuritygroup"}],
                 "StorageType" : "gp2"
