@@ -14,6 +14,23 @@ aws ec2 describe-images --owners self --query 'Images[*].{ID:ImageId}'
 echo -e "\n"
 echo "Enter AMI ID"
 read amiId
+echo "Displaying VPC"
+#aws ec2 describe-vpcs --query 'Vpcs[*]'
+aws ec2 describe-vpcs --query 'Vpcs[*].{Id:VpcId}'
+echo "input ID of VPC you want to use:"
+read vpcId
+echo "vpcId is: $vpcId"
+aws ec2 describe-vpcs --vpc-ids $vpcId --query 'Vpcs[*].Tags[*]' --output text
+echo "Input the name of vpc:"
+read vpcname
+
+subnet1=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcId}-public-az1" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo $subnet1
+subnet2=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcId}-public-az2" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo $subnet2
+subnet3=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcId}-public-az3" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo $subnet3
+
 
 getStackStatus() {
 	aws cloudformation describe-stacks \
@@ -59,7 +76,7 @@ file_dir_var="file://$dir_var/csye6225-cf-application.json"
 aws cloudformation create-stack \
 	--stack-name $Stack_Name  \
 	--template-body $file_dir_var \
-	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId \
+	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId 		ParameterKey="subnet1",ParameterValue=$subnet1 ParameterKey="subnet2",ParameterValue=$subnet2 ParameterKey="subnet3",ParameterValue=$subnet3 ParameterKey="vpcId",ParameterValue=$vpcId ParameterKey="vpcname",ParameterValue=$vpcname\
 	--disable-rollback
 
 
