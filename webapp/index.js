@@ -611,12 +611,17 @@ app.post('/user/register',(req,res)=>{
 				var filename = '';
 				if(process.env.NODE_ENV == "dev") {
 					id = req.file.filename.split('.').slice(0, -1).join('.');
-					filename = req.file.filename;
+					filename = imagePath+req.file.filename;
 				}else{
+					filename = s3.getSignedUrl('getObject', {
+						Bucket: conf.image.imageBucket,
+						Key: req.file.key,
+						Expires: signedUrlExpireSeconds
+					})	
 					id = req.file.key.split('.').slice(0, -1).join('.');
-					filename = '/'+req.file.key;
+					//filename = '/'+req.file.key;
 				}
-				res.json({id:id,url:imagePath+filename});
+				res.json({id:id,url:filename});
 			}
 		});
 	});
@@ -638,8 +643,21 @@ app.post('/user/register',(req,res)=>{
 					res.status(403).json({message:"Error occured"});
 				}
 			} else {
-				console.log("ascascascascac---------",req.file);
-				res.json({id:req.file.filename,url:imagePath+req.file.filename});
+				var id = '';
+				var filename = '';
+				if(process.env.NODE_ENV == "dev") {
+					id = req.file.filename.split('.').slice(0, -1).join('.');
+					filename = imagePath+req.file.filename;
+				}else{
+					filename = s3.getSignedUrl('getObject', {
+						Bucket: conf.image.imageBucket,
+						Key: req.file.key,
+						Expires: signedUrlExpireSeconds
+					})	
+					id = req.file.key.split('.').slice(0, -1).join('.');
+					//filename = '/'+req.file.key;
+				}
+				res.json({id:id,url:filename});
 			}
 		});		
 	});	
