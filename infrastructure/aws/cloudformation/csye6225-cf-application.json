@@ -1,0 +1,146 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+       "keyname":{
+           "Type":"String"
+       },
+       "AmiId":{
+         "Type":"String"
+       },
+	"subnet1":{
+         "Type":"String"
+       },
+	"subnet2":{
+         "Type":"String"
+       },
+	"subnet3":{
+         "Type":"String"
+       },
+       "vpcId":{
+         "Type":"String"
+       },
+       "vpcname":{
+         "Type":"String"
+       }
+    },
+    "Resources": {
+        "ec2instance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {"Ref":"AmiId"},
+                "InstanceType": "t2.micro",
+                "KeyName": {
+                    "Ref": "keyname"
+                },
+                "SubnetId" :{"Ref":"subnet3"},
+                "SecurityGroupIds": [
+                    {
+                        "Ref": "webappsecuritygroup"
+                    }
+                ],
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "VolumeSize": 20,
+                            "DeleteOnTermination": "true",
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ]
+            }
+        },
+        "dbsubnetgroup":{
+            "Type":"AWS::RDS::DBSubnetGroup",
+            "Properties":{
+                "DBSubnetGroupDescription" : "Subnet description of db subnets",
+                "SubnetIds":[{"Ref":"subnet1"},{"Ref":"subnet2"}]
+            }
+        },
+        "webappsecuritygroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId":{"Ref":"vpcId"},
+                "GroupDescription" : "Security group for web server",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 80,
+                        "ToPort": 80,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 22,
+                        "ToPort": 22,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 443,
+                        "ToPort": 443,
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "dbsecuritygroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId":{"Ref":"vpcId"},
+                "GroupDescription" : "Ec2 security group for DB",
+                "SecurityGroupIngress": [
+                    {
+                        "SourceSecurityGroupId": {
+                            "Ref": "webappsecuritygroup"
+                        },
+                        "FromPort": 3306,
+                        "IpProtocol": "tcp",
+                        "ToPort": 3306
+                    }
+                ]
+            }
+        },
+        "tabel1": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+                "AttributeDefinitions": [
+                    {
+                        "AttributeName": "id",
+                        "AttributeType": "S"
+                    }
+                ],
+                "KeySchema": [
+                    {
+                        "AttributeName": "id",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "ProvisionedThroughput":{
+                    "ReadCapacityUnits" : 10,
+                    "WriteCapacityUnits" : 5
+                },
+                "TableName": "csye6225"
+            }
+        },
+        "rdsinstance":{
+            "Type":"AWS::RDS::DBInstance",
+            "Properties":{
+                "DBInstanceClass" : "db.t2.medium",
+                "AllocatedStorage" : "20",
+                "Engine" : "MySQL",
+                "MultiAZ" : "false",
+                "DBInstanceIdentifier" : "csye6225-su19",
+                "MasterUsername" : "csye6225master",
+                "MasterUserPassword" : "csye6225password",
+                "DBSubnetGroupName" : {"Ref": "dbsubnetgroup"},
+                "PubliclyAccessible" : true,
+                "DBName" : "csye6225",
+                "Port":"3306",
+                "VPCSecurityGroups" : [ {"Ref": "dbsecuritygroup"}],
+                "StorageType" : "gp2"
+            }
+        }
+
+    }
+}
