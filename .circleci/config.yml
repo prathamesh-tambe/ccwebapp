@@ -47,7 +47,6 @@ jobs:
             mkdir -p codedeploy_artifact
             cd codedeploy_artifact
             cp -r ../infrastructure/* .
-            cp -r ../jmeter/* .
             cp -r ../webapp/* .
             cp -r ../.circleci/* .
             cp -r ../.git/* .
