@@ -12,6 +12,14 @@ jobs:
           command: sudo apt-get update && sudo apt-get install wget zip unzip python2.7 python-pip -y
 
       - run:
+          name: Install node
+          command: |
+	    wget https://nodejs.org/dist/v10.9.0/node-v10.9.0-linux-x64.tar.xz
+	    tar xf  node-v10.9.0-linux-x64.tar.xz
+	    cd node-v10.9.0-linux-x64/
+            ./bin/node -v
+
+      - run:
           name: update-npm
           command: 'sudo npm install -g npm@5'
 
