@@ -46,9 +46,8 @@ jobs:
             pwd
             mkdir -p codedeploy_artifact
             cd codedeploy_artifact
-            cp ../* .
+            cp -r ../* .
             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
-            rm *.yml *.sh *.properties *.jar *.json
             ls -al
             pwd
             cd ..
