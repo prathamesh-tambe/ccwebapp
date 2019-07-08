@@ -68,7 +68,9 @@ jobs:
       - run:
           name: Upload Artifact to S3
           command: |
-            aws s3 cp csye6225-web-app-${CIRCLE_BUILD_NUM}.zip s3://${CODE_DEPLOY_S3_BUCKET}
+            pwd
+            ls -al
+            aws s3 cp ../codedeploy_artifact/csye6225-web-app-${CIRCLE_BUILD_NUM}.zip s3://${CODE_DEPLOY_S3_BUCKET}
       - run:
           name: Make CodeDeploy API call
           command: |
