@@ -22,7 +22,7 @@ jobs:
             cd webapp
             pwd
             ls -al
-            mvn clean install
+            node clean install
             cd target/
             ls -al
             cd ../
