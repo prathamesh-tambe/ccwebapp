@@ -48,11 +48,7 @@ jobs:
             pwd
             mkdir -p codedeploy_artifact
             cd codedeploy_artifact
-            cp ../infrastructure/aws/codedeploy/*.sh .
-            cp ../*.yml .
-            cp ../*.json .
-            cp ../webapp/target/webApp-0.0.1-SNAPSHOT.jar .
-            cp ../webapp/src/main/resources/*.properties .
+            cp ../* .
             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
             rm *.yml *.sh *.properties *.jar *.json
             ls -al
@@ -63,7 +59,7 @@ jobs:
       - run:
           name: Upload Artifact to S3
           command: |
-            aws s3 cp --recursive codedeploy_artifact s3://${CODE_DEPLOY_S3_BUCKET}
+            aws s3 cp csye6225-web-app-${CIRCLE_BUILD_NUM}.zip --recursive codedeploy_artifact s3://${CODE_DEPLOY_S3_BUCKET}
       - run:
           name: Make CodeDeploy API call
           command: |
