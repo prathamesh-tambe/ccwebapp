@@ -14,15 +14,18 @@ aws ec2 describe-images --owners self --query 'Images[*].{ID:ImageId}'
 echo -e "\n"
 echo "Enter AMI ID"
 read amiId
-echo "Displaying VPC"
-#aws ec2 describe-vpcs --query 'Vpcs[*]'
-aws ec2 describe-vpcs --query 'Vpcs[*].{Id:VpcId}'
-echo "input ID of VPC you want to use:"
-read vpcId
-echo "vpcId is: $vpcId"
-aws ec2 describe-vpcs --vpc-ids $vpcId --query 'Vpcs[*].Tags[*]' --output text
-echo "Input the name of vpc:"
-read vpcname
+
+echo "Displaying names of stacks already exist:"
+aws cloudformation describe-stacks --query 'Stacks[*].StackName'
+echo -e "\n"
+echo "Which stack you want to base your app on, input its name"
+read pStackName
+
+vpcId=$(aws cloudformation describe-stack-resources --stack-name $pStackName --query 'StackResources[?ResourceType==`AWS::EC2::VPC`].[PhysicalResourceId]' --output text)
+echo "Your app is based on: Stack" $pStackName " and VPC " $vpcId
+
+vpcname=$(aws ec2 describe-vpcs --vpc-ids ${vpcId} --query 'Vpcs[*].Tags[?Key==`Name`].[Value]' --output text)
+
 
 subnet1=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az1" --query 'Subnets[*].{id:SubnetId}' --output text`
 echo "Subnet1:"
@@ -79,7 +82,7 @@ file_dir_var="file://$dir_var/csye6225-cf-application.json"
 aws cloudformation create-stack \
 	--stack-name $Stack_Name  \
 	--template-body $file_dir_var \
-	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId 		ParameterKey="subnet1",ParameterValue=$subnet1 ParameterKey="subnet2",ParameterValue=$subnet2 ParameterKey="subnet3",ParameterValue=$subnet3 ParameterKey="vpcId",ParameterValue=$vpcId ParameterKey="vpcname",ParameterValue=$vpcname\
+	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId 		ParameterKey="subnet1",ParameterValue=$subnet1 ParameterKey="subnet2",ParameterValue=$subnet2 ParameterKey="subnet3",ParameterValue=$subnet3 ParameterKey="vpcId",ParameterValue=$vpcId ParameterKey="vpcname",ParameterValue=$vpcname ParameterKey="NameTag",ParameterValue=$Stack_Name\
 	--disable-rollback
 
 

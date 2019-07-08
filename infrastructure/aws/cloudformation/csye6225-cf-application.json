@@ -21,7 +21,12 @@
        },
        "vpcname":{
          "Type":"String"
+       },
+       "NameTag":{
+         "Type":"String"
        }
+
+
     },
     "Resources": {
         "ec2instance": {
@@ -47,7 +52,17 @@
                             "VolumeType": "gp2"
                         }
                     }
-                ]
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "NameTag"
+                        }
+                    }
+		]
+
+
             }
         },
         "dbsubnetgroup":{
@@ -79,6 +94,12 @@
                         "IpProtocol": "tcp",
                         "FromPort": 443,
                         "ToPort": 443,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 3000,
+                        "ToPort": 3000,
                         "CidrIp": "0.0.0.0/0"
                     }
                 ]
@@ -141,6 +162,8 @@
                 "StorageType" : "gp2"
             }
         }
+	
+
 
     }
 }
