@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Install awscli
           command: |
-            sudo pip install awscli -y
+            sudo pip install awscli
             aws configure set default.region us-east-1
       - run:
           name: Build Artifact
