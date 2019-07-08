@@ -16,7 +16,7 @@ jobs:
           name: Install node & npm
           command: |
             sudo apt install curl -y
-           curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
+            curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
             sudo apt install nodejs -y
             sudo apt install npm -y
 
