@@ -22,7 +22,7 @@ jobs:
 
       - run:
           name: update-npm
-          command: 'sudo npm install -g'
+          command: 'sudo npm install -g npm@6'
 
       - run:
           name: Install awscli
