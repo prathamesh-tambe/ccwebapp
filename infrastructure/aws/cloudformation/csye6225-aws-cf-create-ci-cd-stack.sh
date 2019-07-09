@@ -13,7 +13,7 @@ read username
 echo "Enter Bucket Name for Code Deploy"
 read codedeploybucket
 
-echo "Enter Bucket Name for Attachments"
+echo "Enter Bucket Name for sotring Images"
 read attachmentbucket
 
 dir_var=$(pwd)

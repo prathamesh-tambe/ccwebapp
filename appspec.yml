@@ -7,6 +7,6 @@ files:
 
 hooks:
   AfterInstall:
-   - location: ./afterInstall.sh
+   - location: /home/centos/aws/codedeploy/afterInstall.sh
      timeout: 180
 runas: centos
