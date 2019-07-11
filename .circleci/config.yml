@@ -35,10 +35,8 @@ jobs:
             cd webapp
             pwd
             ls -al
-            npm install
-            cd ../
+            cd ..
             pwd
-            ls -al
       - run:
           name: Zip Artifact
           command: |
