@@ -52,6 +52,7 @@ jobs:
             cp ../*.md .
             cp ../LICENSE .
             cp ../.gitignore .
+            pwd
             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
             ls -al
             pwd
