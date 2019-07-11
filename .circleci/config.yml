@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/node:7.10
 
     steps:
       - checkout
@@ -13,11 +13,9 @@ jobs:
             sudo apt-get update && sudo apt-get install wget zip unzip python2.7 python-pip -y
 
       - run:
-          name: Install node & npm
+          name: Install curl & npm
           command: |
             sudo apt install curl -y
-            curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
-            sudo apt install nodejs -y
             sudo apt install npm -y
 
       - run:
@@ -37,25 +35,24 @@ jobs:
             cd webapp
             pwd
             ls -al
-            npm install
-            cd ../
+            cd ..
             pwd
-            ls -al
       - run:
           name: Zip Artifact
           command: |
             echo "current build number is ${CIRCLE_BUILD_NUM}"
             pwd
             mkdir -p codedeploy_artifact
+            pwd
             cd codedeploy_artifact
-            cp -r ../infrastructure/* .
-            cp -r ../webapp/* .
-            cp -r ../.circleci/* .
-            cp -r ../.git/* .
+            cp -r ../infrastructure .
+            cp -r ../webapp .
+            cp -r ../.circleci .
             cp ../*.yml .
             cp ../*.md .
             cp ../LICENSE .
             cp ../.gitignore .
+            pwd
             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
             ls -al
             pwd
