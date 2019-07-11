@@ -13,11 +13,9 @@ jobs:
             sudo apt-get update && sudo apt-get install wget zip unzip python2.7 python-pip -y
 
       - run:
-          name: Install node & npm
+          name: Install curl & npm
           command: |
             sudo apt install curl -y
-            curl -sL https://deb.nodesource.com/setup_6.x | sudo bash -
-            sudo apt install nodejs -y
             sudo apt install npm -y
 
       - run:
