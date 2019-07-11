@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8-jdk
+      - image: circleci/node:7.10
 
     steps:
       - checkout
@@ -48,9 +48,9 @@ jobs:
             pwd
             mkdir -p codedeploy_artifact
             cd codedeploy_artifact
-            cp -r ../infrastructure .
-            cp -r ../webapp .
-            cp -r ../.circleci .
+            cp -r ../infrastructure/. .
+            cp -r ../webapp/. .
+            cp -r ../.circleci/. .
             cp ../*.yml .
             cp ../*.md .
             cp ../LICENSE .

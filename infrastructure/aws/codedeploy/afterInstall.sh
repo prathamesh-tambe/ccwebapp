@@ -11,3 +11,16 @@
 #sudo rm -rf /opt/tomcat/logs/*.log
 #sudo rm -rf /opt/tomcat/logs/*.txt
 pwd
+
+rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
+echo $rdsEndpoint
+
+s3bucket = `aws s3api list-buckets --query "Buckets[].Name" --output text | grep csye6225-* | awk '{print $1}'`
+echo $s3bucket
+
+cd /home/centos/webapp/
+pwd
+
+sudo npm install
+
+NODE_ENV=prod NODE_DB_HOST=csye6225-su19.cp9ujdnki7nm.us-east-1.rds.amazonaws.com NODE_S3_BUCKET=csye6225-su19-tambep.me.csye6225.com NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password node index.js
