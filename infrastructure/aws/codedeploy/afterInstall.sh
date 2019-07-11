@@ -23,4 +23,4 @@ pwd
 
 sudo npm install
 
-NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password node index.js
+#NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password node index.js
