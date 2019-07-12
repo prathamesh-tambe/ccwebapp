@@ -159,7 +159,8 @@
                {
                   "Ref":"AccessAttachmentToS3Bucket"
                },
-               "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+               "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+               "arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess"
             ],
                 "AssumeRolePolicyDocument":{
                     "Version" : "2012-10-17",
@@ -214,11 +215,12 @@
                             "s3:Get*",
                             "s3:List*",
                             "s3:Delete*",
-                            "s3:Put*"
+                            "s3:Put*",
+                            "s3:*"
                         ],
                         "Effect":"Allow",
                         "Resource" : [{
-                            "Fn::Join":["",["arn:aws:s3:::",{"Ref":"attachmentbucket"},"/*"]]
+                            "Fn::Join":["",["arn:aws:s3:::*"]]
                         }]
                     }]
                 }

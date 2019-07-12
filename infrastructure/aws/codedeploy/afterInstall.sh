@@ -12,6 +12,8 @@
 #sudo rm -rf /opt/tomcat/logs/*.txt
 pwd
 
+ su - centos -c "aws configure set region us-east-1"
+
 rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
 echo $rdsEndpoint
 
@@ -25,4 +27,4 @@ sudo npm install
 
 sudo npm i forever -g
 
-NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start index.js
+sudo NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=csye6225-spring2019-zhaojiawe.me.csye6225.com NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start index.js
