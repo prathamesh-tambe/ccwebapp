@@ -29,4 +29,6 @@ sudo npm i forever -g
 
 NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start index.js | tee logfile
 
-sudo NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start index.js 
+sudo NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start --minUptime 1000 --spinSleepTime 1000 index.js 
+
+forever list
