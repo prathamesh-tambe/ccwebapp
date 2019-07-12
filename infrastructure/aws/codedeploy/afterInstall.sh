@@ -13,7 +13,7 @@
 pwd
 
 #su centos -c "aws configure set region us-east-1"
-su centos
+echo $PATH
 
 whoami
 
