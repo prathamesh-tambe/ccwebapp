@@ -13,6 +13,8 @@
 pwd
 
 #su centos -c "aws configure set region us-east-1"
+su centos
+
 whoami
 
 rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
