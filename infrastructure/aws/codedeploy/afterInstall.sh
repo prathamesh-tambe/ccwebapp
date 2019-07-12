@@ -12,13 +12,13 @@
 #sudo rm -rf /opt/tomcat/logs/*.txt
 pwd
 
-su - centos -c "aws configure set region us-east-1"
+su "aws configure set region us-east-1"
 
 rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
 echo $rdsEndpoint
 
 s3bucket = `aws s3api list-buckets --query "Buckets[].Name" --output text | grep csye6225-* | awk '{print $1}'`
-echo $s3bucket | tee logfile
+echo $s3bucket
 
 cd /home/centos/webapp/
 pwd
