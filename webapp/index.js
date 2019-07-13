@@ -45,7 +45,7 @@ connection.connect(function(err) {
 		    if(find.warningCount == 1) { console.log("books already exists"); }
 		    else{ console.log(find,"book table created successfully"); }
 		});
-		connection.query('CREATE TABLE IF NOT EXISTS `image` (`id` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NULL);',function (erro, find) {
+		connection.query('CREATE TABLE IF NOT EXISTS `image` (`img_id` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NULL);',function (erro, find) {
 		    if(find.warningCount == 1) { console.log("images already exists"); }
 		    else{ console.log("image table created successfully"); }
 		});
@@ -102,7 +102,7 @@ var storages3 = multerS3({
 				  if(erro) res.status(403).json({message:"Error occurred"});
 				  if(find.length == 0){ cb(3); }else{
 				  if(find[0].image != null){
-					  connection.query('UPDATE image SET url=? WHERE id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
+					  connection.query('UPDATE image SET url=? WHERE img_id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
 						  if(erro) res.status(404).json({message:"Not Found"});
 						  if(findR.affectedRows){
 							  console.log("imgId+ext------",find[0].image+ext);
@@ -129,10 +129,10 @@ var storages3 = multerS3({
 				  if(erro) res.status(404).json({message:"Not Found"});
 				  if(find.length > 0 && find[0].image == null){
 					  var imgId = uuidv4();
-					  connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
+					  connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 						  if(erro) res.status(404).json({message:"Not Found"});
 						  if(findRe.affectedRows > 0){
-							  connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
+							  connection.query('UPDATE book SET image=? WHERE img_id =?',[imgId,req.params.id],function (erro, findR) {
 								  if(erro) res.status(404).json({message:"Not Found"});
 								  if(findR.affectedRows){
 									  cb(null, imgId+ext);										
@@ -250,7 +250,7 @@ app.post('/user/register',(req,res)=>{
 		    if(erro) res.status(404).json({message:"Not Found"});
 		    if(find.length>0){
 				if(find[0].image != null){
-					connection.query('SELECT * FROM image WHERE id = ?',[find[0].image],function (error,resultSelect, field) {
+					connection.query('SELECT * FROM image WHERE img_id = ?',[find[0].image],function (error,resultSelect, field) {
 						if(error) res.status(204).json({message:"No image Content to delete"}); 
 						if(resultSelect.length > 0){
 							url = '';
@@ -283,7 +283,7 @@ app.post('/user/register',(req,res)=>{
 	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
 		
-		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.id", function(err, result, field){
+		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
 			if (err) res.status(400).json({ message:'Error occurred' });
             if(result.length > 0){
 				console.log("result all books",result);
@@ -291,7 +291,7 @@ app.post('/user/register',(req,res)=>{
 				for (var i in result) {
 					val = result[i];
 					//val.image = {'id':val.image,'url':imagePath+resultSelect[0].url};
-					console.log(val.image);
+					console.log(val);
 					if(val.image != null){
 						url = null;
 						if(process.env.NODE_ENV == "dev"){
@@ -327,10 +327,10 @@ app.post('/user/register',(req,res)=>{
 						res.status(204).json({message:"No Content"});
 					}else{
 						if(resultB[0].image != null){
-							connection.query('SELECT * FROM image WHERE id = ?',[resultB[0].image],function (error,resultSelect, field) {
+							connection.query('SELECT * FROM image WHERE img_id = ?',[resultB[0].image],function (error,resultSelect, field) {
 								if(error) res.status(204).json({message:"No image Content to delete"}); 
 								if(resultSelect.length > 0){
-									connection.query('DELETE FROM image WHERE id = ?',[resultB[0].image],function (error,resulti, field) {
+									connection.query('DELETE FROM image WHERE img_id = ?',[resultB[0].image],function (error,resulti, field) {
 										if(error) res.status(204).json({message:"No image Content to delete"}); 
 										if(process.env.NODE_ENV == "dev"){
 											fs.unlink(imageDir+resultSelect[0].url);
@@ -470,7 +470,7 @@ app.post('/user/register',(req,res)=>{
 					connection.query(query, function (error, resultsn, fields) {
 						if (error) throw res.status(400).json({ message:'Error occurred',err:error });
 						if(resultsn.affectedRows > 0){
-							connection.query('select * from image WHERE id =?',[results[0].image],function (erro, findR) {
+							connection.query('select * from image WHERE img_id =?',[results[0].image],function (erro, findR) {
 								if(erro) res.status(404).json({message:"Not Found"});
 								if(imgurl){
 									if(findR.length > 0){
@@ -527,7 +527,7 @@ app.post('/user/register',(req,res)=>{
 					if(erro) res.status(403).json({message:"Error occurred"});
 					if(find.length == 0){ cb(3); }else{
 					if(find[0].image != null){
-						connection.query('UPDATE image SET url=? WHERE id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
+						connection.query('UPDATE image SET url=? WHERE img_id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
 							if(erro) res.status(404).json({message:"Not Found"});
 							if(findR.affectedRows){
 								console.log("imgId+ext------",find[0].image+ext);
@@ -554,7 +554,7 @@ app.post('/user/register',(req,res)=>{
 					if(erro) res.status(404).json({message:"Not Found"});
 					if(find.length > 0 && find[0].image == null){
 						var imgId = uuidv4();
-						connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
+						connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 							if(erro) res.status(404).json({message:"Not Found"});
 							if(findRe.affectedRows > 0){
 								connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
@@ -667,11 +667,11 @@ app.post('/user/register',(req,res)=>{
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
 				if(find[0].image != null){
-					connection.query('SELECT * FROM image WHERE id = ?',[req.params.imgid],function (error,resultSelect, field) {
+					connection.query('SELECT * FROM image WHERE img_id = ?',[req.params.imgid],function (error,resultSelect, field) {
 						if(error) res.status(204).json({message:"No image Content to delete"}); 
 						if(resultSelect.length > 0){
-							if(resultSelect[0].id == find[0].image){
-							connection.query('DELETE FROM image WHERE id = ?',[find[0].image],function (error,resulti, field) {
+							if(resultSelect[0].img_id == find[0].image){
+							connection.query('DELETE FROM image WHERE img_id = ?',[find[0].image],function (error,resulti, field) {
 								if(error) res.status(204).json({message:"No image Content to delete"}); 
 								if(resulti.affectedRows){
 									if(process.env.NODE_ENV == "dev"){
@@ -708,11 +708,11 @@ app.post('/user/register',(req,res)=>{
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
 				if(find[0].image != null){
-					connection.query('SELECT * FROM image WHERE id = ?',[req.params.imgid],function (error,resultSelect, field) {
+					connection.query('SELECT * FROM image WHERE img_id = ?',[req.params.imgid],function (error,resultSelect, field) {
 						if(error) res.status(204).json({message:"No image Content to delete"}); 
 						if(resultSelect.length > 0){
-							if(resultSelect[0].id == find[0].image){
-								res.json({id:resultSelect[0].id,url:imagePath+resultSelect[0].url});
+							if(resultSelect[0].img_id == find[0].image){
+								res.json({id:resultSelect[0].img_id,url:imagePath+resultSelect[0].url});
 							}else{
 								res.status(404).json({message:"Image doesnot belong to this book"});	
 							}
