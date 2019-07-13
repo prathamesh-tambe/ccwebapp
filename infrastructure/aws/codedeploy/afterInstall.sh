@@ -25,7 +25,10 @@ rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-s
 echo $rdsEndpoint
 
 s3bucket = `aws s3api list-buckets --query "Buckets[].Name" --output text  | awk '{split($0,b," ");print b[1];print b[1]; print b[2]}' | grep '^csye6225'`
-echo $s3bucket 
+echo $s3bucket
+
+#aws s3api list-buckets --query "Buckets[].Name" --output text  | awk -F '[ ]' | grep "^csye6225" | awk '{print length($0)}'
+#aws s3api list-buckets --query "Buckets[].Name" --output text  | awk '{split($0,b," ");print b[1];print b[1]; print b[2]}' | grep '^csye6225'
 
 cd /home/centos/webapp/
 pwd
@@ -33,6 +36,7 @@ pwd
 sudo npm install
 
 sudo npm i forever -g
+
 
 sudo NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start --minUptime 1000 --spinSleepTime 1000 index.js 
 
