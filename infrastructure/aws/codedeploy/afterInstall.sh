@@ -12,7 +12,14 @@
 #sudo rm -rf /opt/tomcat/logs/*.txt
 pwd
 
- su - centos -c "aws configure set region us-east-1"
+#su centos -c "aws configure set region us-east-1"
+PATH=$PATH:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/centos/.local/bin:/home/centos/bin
+
+echo $PATH
+
+aws configure set default.region us-east-1
+
+aws configure list
 
 rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
 echo $rdsEndpoint
@@ -30,4 +37,7 @@ sudo npm install
 
 sudo npm i forever -g
 
-sudo NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start index.js
+
+sudo NODE_ENV=prod NODE_DB_HOST=$rdsEndpoint NODE_S3_BUCKET=$s3bucket NODE_DB_USER=csye6225master NODE_DB_PASS=csye6225password forever start --minUptime 1000 --spinSleepTime 1000 index.js 
+
+forever list
