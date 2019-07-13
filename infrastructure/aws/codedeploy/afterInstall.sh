@@ -15,7 +15,11 @@ pwd
 #su centos -c "aws configure set region us-east-1"
 PATH=$PATH:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/centos/.local/bin:/home/centos/bin
 
+echo $PATH
+
 aws configure set default.region us-east-1
+
+aws configure list
 
 rdsEndpoint = `aws rds describe-db-instances --db-instance-identifier csye6225-su19 --query 'DBInstances[*].Endpoint.Address' --output text`
 echo $rdsEndpoint
