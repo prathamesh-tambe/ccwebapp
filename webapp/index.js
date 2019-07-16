@@ -1,4 +1,3 @@
-const aws = require('aws-sdk');
 var http = require("http");
 var express = require('express');
 var app = express();
@@ -11,45 +10,22 @@ var multer = require('multer');
 var path = require('path');
 var url = require('url');
 const fs = require('fs');
-const Config = require('./conf.js');
-conf = new Config();
-const multerS3 = require('multer-s3');
-
-var signedUrlExpireSeconds = 60 * 2;
 
 //global common variables
-var imageDir = conf.image.imageBucket;
-var imagePath = conf.image.imageurl+imageDir;
-console.log("conf ------",conf,"++++++++++++++",);
-//return false;
+var imageDir = "images/";
+var imagePath = "http://localhost:3000/"+imageDir;
 
 //start mysql connection
 var connection = mysql.createConnection({
-		host     : conf.db.host,
-		user     : conf.db.user,
-		port 	 : '3306',
-		password : conf.db.password,
-		database : conf.db.database
+		host     : 'localhost',
+		user     : 'root',
+		password : 'password',
+		database : 'books'
 });
 
 connection.connect(function(err) {
-  if (err){
-	  console.log(err);
-	  throw err;
-	}else{
-		connection.query("CREATE TABLE IF NOT EXISTS `user` (`id` INT NOT NULL AUTO_INCREMENT,`username` VARCHAR(255) NOT NULL,`password` VARCHAR(255) NOT NULL,`cdate` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY (`id`)) ENGINE=InnoDB;",function (erro, find) {
-		    if(find.warningCount == 1) { console.log("users already exists"); }
-		    else{ console.log(find,"users table created successfully"); }
-		});
-		connection.query('CREATE TABLE IF NOT EXISTS `book` (`id` VARCHAR(255) NOT NULL,`title` VARCHAR(255) NOT NULL,`author` VARCHAR(100) NULL,`isbn` VARCHAR(255) NULL,`quantity` INT NULL,`image` VARCHAR(255),PRIMARY KEY (`id`));',function (erro, find) {
-		    if(find.warningCount == 1) { console.log("books already exists"); }
-		    else{ console.log(find,"book table created successfully"); }
-		});
-		connection.query('CREATE TABLE IF NOT EXISTS `image` (`img_id` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NULL);',function (erro, find) {
-		    if(find.warningCount == 1) { console.log("images already exists"); }
-		    else{ console.log("image table created successfully"); }
-		});
-	}
+  if (err) throw err
+  console.log('You are now connected with mysql database...')
 })
 //end mysql connection
 
@@ -70,9 +46,9 @@ var server = app.listen(3000, function () {
 
 });
 
-const saltRounds = conf.salt.rounds;
-const myPlaintextPassword = conf.salt.pass;
-const someOtherPlaintextPassword = conf.salt.plainpass;
+const saltRounds = 10;
+const myPlaintextPassword = 's0/\/\P4$$w0rD';
+const someOtherPlaintextPassword = 'not_happening';
 
 DEBUG_MODE_ON = true;
 if (!DEBUG_MODE_ON) {
@@ -80,91 +56,13 @@ if (!DEBUG_MODE_ON) {
 	console.log = function(){};
 }
 
-s3 = null;
-if(process.env.NODE_ENV == 'prod'){
-	s3 = new aws.S3();
-	var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
-	aws.config.credentials = credentials;
-	console.log("s3---------",aws.config.credentials.accessKeyId);
-	//return false;	
-}
-
-var storages3 = multerS3({
-	s3: s3,
-	bucket: conf.image.imageBucket,
-	key: function (req, file, cb) {
-	  if(req.do=='update'){	
-		  ext = path.extname(file.originalname);
-		  allowedformats = ['.jpg','.jpeg','.png'];  
-		  console.log(" exttion cascasc hyat aahe value ",allowedformats.indexOf(ext),file);
-		  if(allowedformats.indexOf(ext) != -1){
-			  connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
-				  if(erro) res.status(403).json({message:"Error occurred"});
-				  if(find.length == 0){ cb(3); }else{
-				  if(find[0].image != null){
-					  connection.query('UPDATE image SET url=? WHERE img_id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
-						  if(erro) res.status(404).json({message:"Not Found"});
-						  if(findR.affectedRows){
-							  console.log("imgId+ext------",find[0].image+ext);
-							  cb(null, find[0].image+ext);										
-						  }else {
-							  cb(3);
-						  }
-					  });
-				  }else {
-					  cb(2);
-				  }
-				  }
-			  });
-						  
-		  }else{
-			  cb(1);		// 1 for not match 
-		  }
-	  }else{
-		  ext = path.extname(file.originalname);
-		  allowedformats = ['.jpg','.jpeg','.png'];  
-		  console.log(" exttion value ",allowedformats.indexOf(ext),file);
-		  if(allowedformats.indexOf(ext) != -1){
-			  connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
-				  if(erro) res.status(404).json({message:"Not Found"});
-				  if(find.length > 0 && find[0].image == null){
-					  var imgId = uuidv4();
-					  connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
-						  if(erro) res.status(404).json({message:"Not Found"});
-						  if(findRe.affectedRows > 0){
-							  connection.query('UPDATE book SET image=? WHERE img_id =?',[imgId,req.params.id],function (erro, findR) {
-								  if(erro) res.status(404).json({message:"Not Found"});
-								  if(findR.affectedRows){
-									  cb(null, imgId+ext);										
-								  }else {
-									  cb(3);
-								  }
-							  });
-						  }else {
-							  cb(3);
-						  }
-					  });
-					  
-				  }else {
-					  cb(2);
-				  }
-			  });	
-				  
-		  }else{
-			  cb(1);		// 1 for not match 
-		  }				
-	  }
-	}
-  })
-
-var deletefile = function(filenamev){
-	var params = {  Bucket: imageDir, Key: filenamev };
-	s3.deleteObject(params, function(err, data) {
-	  if (err) console.log(err, err.stack);  // error
-	  else     console.log("file deleted");                 // deleted
-	});  
-}  
-  
+//rest api to get all customers
+app.get('/customer', function (req, res) {
+   connection.query('select * from customer', function (error, results, fields) {
+	  if (error) throw error;
+	  res.end(JSON.stringify(results));
+	});
+});
 app.post('/user/register',(req,res)=>{
 		let username = req.body.username;
 		let pass = req.body.password;
@@ -250,20 +148,10 @@ app.post('/user/register',(req,res)=>{
 		    if(erro) res.status(404).json({message:"Not Found"});
 		    if(find.length>0){
 				if(find[0].image != null){
-					connection.query('SELECT * FROM image WHERE img_id = ?',[find[0].image],function (error,resultSelect, field) {
+					connection.query('SELECT * FROM image WHERE id = ?',[find[0].image],function (error,resultSelect, field) {
 						if(error) res.status(204).json({message:"No image Content to delete"}); 
 						if(resultSelect.length > 0){
-							url = '';
-							if(process.env.NODE_ENV == "dev"){
-								url = imagePath+resultSelect[0].url;
-							}else{
-								url = s3.getSignedUrl('getObject', {
-									Bucket: conf.image.imageBucket,
-									Key: resultSelect[0].url,
-									Expires: signedUrlExpireSeconds
-								})	
-							}
-							find[0].image = {'id':find[0].image,'url':url}
+							find[0].image = {'id':find[0].image,'url':imagePath+resultSelect[0].url}
 							console.log("find",find);
 							res.json(find);								
 						}
@@ -283,7 +171,7 @@ app.post('/user/register',(req,res)=>{
 	app.get('/book/ishita' , (req, res )=>{
 		//res.json({msg : 'in book app'});
 		
-		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
+		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.id", function(err, result, field){
 			if (err) res.status(400).json({ message:'Error occurred' });
             if(result.length > 0){
 				console.log("result all books",result);
@@ -291,20 +179,9 @@ app.post('/user/register',(req,res)=>{
 				for (var i in result) {
 					val = result[i];
 					//val.image = {'id':val.image,'url':imagePath+resultSelect[0].url};
-					console.log(val);
+					console.log(val.image);
 					if(val.image != null){
-						url = null;
-						if(process.env.NODE_ENV == "dev"){
-							url = imagePath+val.url;
-						}else{
-							url = s3.getSignedUrl('getObject', {
-								Bucket: conf.image.imageBucket,
-								Key: val.url,
-								Expires: signedUrlExpireSeconds
-							})	
-						}
-
-						result[i].image = {'id':val.image,'url':url};
+						result[i].image = {'id':val.image,'url':imagePath+val.url};
 					}
 					delete result[i].url;
 					//console.log(i,'--------',result.length)
@@ -314,6 +191,33 @@ app.post('/user/register',(req,res)=>{
 				}
 			}else{res.status(204).json({message:"No Content"});}
 		 });
+
+/*
+		 connection.query( "SELECT * From book", function(err, result, field){
+			if (err) res.status(400).json({ message:'Error occurred' });
+            if(result.length > 0){
+				for (var i in result) {
+					val = result[i];
+					console.log(val.image);
+					if(val.image != null){
+						connection.query('SELECT * FROM image WHERE id = ?',[val.image],function (error,resultSelect, field) {
+							if(error) res.status(204).json({message:"No image Content to delete"}); 
+							if(resultSelect.length > 0){
+								val.image = {'id':val.image,'url':imagePath+resultSelect[0].url};
+								//res.json(find);
+								result[i] = val;								
+							}	
+							if(i == result.length-1){
+								res.json(result);
+							}
+						});	
+					}
+					//console.log(i,'--------',result.length)
+					
+				}
+			}else{res.status(204).json({message:"No Content"});}
+		 });
+*/1
 	 });
 
 	//DELETE /book/{id}
@@ -327,16 +231,12 @@ app.post('/user/register',(req,res)=>{
 						res.status(204).json({message:"No Content"});
 					}else{
 						if(resultB[0].image != null){
-							connection.query('SELECT * FROM image WHERE img_id = ?',[resultB[0].image],function (error,resultSelect, field) {
+							connection.query('SELECT * FROM image WHERE id = ?',[resultB[0].image],function (error,resultSelect, field) {
 								if(error) res.status(204).json({message:"No image Content to delete"}); 
 								if(resultSelect.length > 0){
-									connection.query('DELETE FROM image WHERE img_id = ?',[resultB[0].image],function (error,resulti, field) {
+									connection.query('DELETE FROM image WHERE id = ?',[resultB[0].image],function (error,resulti, field) {
 										if(error) res.status(204).json({message:"No image Content to delete"}); 
-										if(process.env.NODE_ENV == "dev"){
-											fs.unlink(imageDir+resultSelect[0].url);
-										}else{
-											deletefile(resultSelect[0].url);
-										}
+										fs.unlink(imageDir+resultSelect[0].url);
 										res.json({message:"deleted successfully"});
 									});
 								}else{
@@ -470,7 +370,7 @@ app.post('/user/register',(req,res)=>{
 					connection.query(query, function (error, resultsn, fields) {
 						if (error) throw res.status(400).json({ message:'Error occurred',err:error });
 						if(resultsn.affectedRows > 0){
-							connection.query('select * from image WHERE img_id =?',[results[0].image],function (erro, findR) {
+							connection.query('select * from image WHERE id =?',[results[0].image],function (erro, findR) {
 								if(erro) res.status(404).json({message:"Not Found"});
 								if(imgurl){
 									if(findR.length > 0){
@@ -527,7 +427,7 @@ app.post('/user/register',(req,res)=>{
 					if(erro) res.status(403).json({message:"Error occurred"});
 					if(find.length == 0){ cb(3); }else{
 					if(find[0].image != null){
-						connection.query('UPDATE image SET url=? WHERE img_id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
+						connection.query('UPDATE image SET url=? WHERE id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
 							if(erro) res.status(404).json({message:"Not Found"});
 							if(findR.affectedRows){
 								console.log("imgId+ext------",find[0].image+ext);
@@ -554,7 +454,7 @@ app.post('/user/register',(req,res)=>{
 					if(erro) res.status(404).json({message:"Not Found"});
 					if(find.length > 0 && find[0].image == null){
 						var imgId = uuidv4();
-						connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
+						connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 							if(erro) res.status(404).json({message:"Not Found"});
 							if(findRe.affectedRows > 0){
 								connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
@@ -581,16 +481,9 @@ app.post('/user/register',(req,res)=>{
 		}
 		}
 	})
+	  
+	var upload = multer({ storage: storage }).single('image');
 
-	var storageType = (process.env.NODE_ENV == "dev") ? storage : storages3;
-	console.log("storage --------- ",storageType);
-	var upload = multer({ storage: storageType }).single('image');
-
-/*	app.post('/upload', upload(), function(req, res, next) {
-		console.log("-----------",req);
-	  res.send('Successfully uploaded ' + req.files.length + ' files!')
-	})  
-*/
 	app.post('/book/:id/image', (req, res) => {
 	//console.log("--------------",req.route);
 		req.do = 'upload';
@@ -607,21 +500,7 @@ app.post('/user/register',(req,res)=>{
 				}
 			} else {
 				console.log("ascascascascac---------",req.file);
-				var id = '';
-				var filename = '';
-				if(process.env.NODE_ENV == "dev") {
-					id = req.file.filename.split('.').slice(0, -1).join('.');
-					filename = imagePath+req.file.filename;
-				}else{
-					filename = s3.getSignedUrl('getObject', {
-						Bucket: conf.image.imageBucket,
-						Key: req.file.key,
-						Expires: signedUrlExpireSeconds
-					})	
-					id = req.file.key.split('.').slice(0, -1).join('.');
-					//filename = '/'+req.file.key;
-				}
-				res.json({id:id,url:filename});
+				res.json({id:req.file.filename.split('.').slice(0, -1).join('.'),url:imagePath+req.file.filename});
 			}
 		});
 	});
@@ -643,21 +522,8 @@ app.post('/user/register',(req,res)=>{
 					res.status(403).json({message:"Error occured"});
 				}
 			} else {
-				var id = '';
-				var filename = '';
-				if(process.env.NODE_ENV == "dev") {
-					id = req.file.filename.split('.').slice(0, -1).join('.');
-					filename = imagePath+req.file.filename;
-				}else{
-					filename = s3.getSignedUrl('getObject', {
-						Bucket: conf.image.imageBucket,
-						Key: req.file.key,
-						Expires: signedUrlExpireSeconds
-					})	
-					id = req.file.key.split('.').slice(0, -1).join('.');
-					//filename = '/'+req.file.key;
-				}
-				res.json({id:id,url:filename});
+				console.log("ascascascascac---------",req.file);
+				res.json({id:req.file.filename,url:imagePath+req.file.filename});
 			}
 		});		
 	});	
@@ -667,18 +533,14 @@ app.post('/user/register',(req,res)=>{
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
 				if(find[0].image != null){
-					connection.query('SELECT * FROM image WHERE img_id = ?',[req.params.imgid],function (error,resultSelect, field) {
+					connection.query('SELECT * FROM image WHERE id = ?',[req.params.imgid],function (error,resultSelect, field) {
 						if(error) res.status(204).json({message:"No image Content to delete"}); 
 						if(resultSelect.length > 0){
-							if(resultSelect[0].img_id == find[0].image){
-							connection.query('DELETE FROM image WHERE img_id = ?',[find[0].image],function (error,resulti, field) {
+							if(resultSelect[0].id == find[0].image){
+							connection.query('DELETE FROM image WHERE id = ?',[find[0].image],function (error,resulti, field) {
 								if(error) res.status(204).json({message:"No image Content to delete"}); 
 								if(resulti.affectedRows){
-									if(process.env.NODE_ENV == "dev"){
-										fs.unlink(imageDir+resultSelect[0].url);
-									}else{
-										deletefile(resultSelect[0].url);
-									}
+									fs.unlink(imageDir+resultSelect[0].url);
 									connection.query('UPDATE book SET image=? WHERE id =?',[null,req.params.id],function (erro, findR) {
 										if(erro) res.status(404).json({message:"Not Found"});
 										if(findR.affectedRows){
@@ -708,11 +570,11 @@ app.post('/user/register',(req,res)=>{
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
 				if(find[0].image != null){
-					connection.query('SELECT * FROM image WHERE img_id = ?',[req.params.imgid],function (error,resultSelect, field) {
+					connection.query('SELECT * FROM image WHERE id = ?',[req.params.imgid],function (error,resultSelect, field) {
 						if(error) res.status(204).json({message:"No image Content to delete"}); 
 						if(resultSelect.length > 0){
-							if(resultSelect[0].img_id == find[0].image){
-								res.json({id:resultSelect[0].img_id,url:imagePath+resultSelect[0].url});
+							if(resultSelect[0].id == find[0].image){
+								res.json({id:resultSelect[0].id,url:imagePath+resultSelect[0].url});
 							}else{
 								res.status(404).json({message:"Image doesnot belong to this book"});	
 							}
