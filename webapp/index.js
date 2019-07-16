@@ -132,7 +132,7 @@ var storages3 = multerS3({
 					  connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 						  if(erro) res.status(404).json({message:"Not Found"});
 						  if(findRe.affectedRows > 0){
-							  connection.query('UPDATE book SET image=? WHERE img_id =?',[imgId,req.params.id],function (erro, findR) {
+							  connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
 								  if(erro) res.status(404).json({message:"Not Found"});
 								  if(findR.affectedRows){
 									  cb(null, imgId+ext);										
