@@ -85,7 +85,7 @@ if(process.env.NODE_ENV == 'prod'){
 	s3 = new aws.S3();
 	var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
 	aws.config.credentials = credentials;
-	console.log("s3---------",aws.config.credentials.accessKeyId);
+	console.log("s3---------",aws.config.credentials);
 	//return false;	
 }
 
