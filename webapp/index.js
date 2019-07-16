@@ -133,7 +133,7 @@ var storages3 = multerS3({
 						  if(erro) res.status(404).json({message:"Not Found"});
 						  if(findRe.affectedRows > 0){
 							  connection.query('UPDATE book SET image=? WHERE img_id =?',[imgId,req.params.id],function (erro, findR) {
-								  if(erro) findR.status(404).json({message:"Not Found"});
+								  if(erro) { findR.status(404).json({message:"Not Found"});}
 								  if(findR.affectedRows){
 									  cb(null, imgId+ext);										
 								  }else {
