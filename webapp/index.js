@@ -80,6 +80,19 @@ if (!DEBUG_MODE_ON) {
 	console.log = function(){};
 }
 
+var metadata = new aws.MetadataService();
+function getEC2Credentials(rolename){
+	var promise = new Promise((resolve,reject)=>{
+		metadata.request('/latest/meta-data/iam/security-credentials/'+rolename,function(err,data){
+			if(err) reject(err);   
+
+			resolve(JSON.parse(data));            
+		});
+	});
+
+	return promise;
+};
+
 s3 = null;
 if(process.env.NODE_ENV == 'prod'){
 	s3 = new aws.S3();
@@ -89,12 +102,14 @@ if(process.env.NODE_ENV == 'prod'){
 	console.log("s3---------",aws.config.credentials);
 	//return false;
 	*/
-	var metadata = new AWS.MetadataService();
-	metadata.request('/latest/meta-data/iam/security-credentials/CodeDeployEC2ServiceRole',function(err,data){
-		if(err) console.log("------------ error getting data ------------",err);   
-
-		console.log("------------ success in data fetch ------------",data);            
-	});	
+	getEC2Credentials('CodeDeployEC2ServiceRole').then((credentials)=>{
+		console.log("\n----- credentials ------",credentials);
+		/*AWS.config.accessKeyId=credentials.AccessKeyId;
+        AWS.config.secretAccessKey=credentials.SecretAccessKey;
+        AWS.config.sessionToken = credentials.Token;*/
+    }).catch((err)=>{
+        console.log("\n-----errrrr------",err);
+    });	
 }
 exit;
 
