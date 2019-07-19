@@ -111,7 +111,7 @@ if(process.env.NODE_ENV == 'prod'){
         console.log("\n-----errrrr------",err);
     });	
 }
-exit;
+
 
 var storages3 = multerS3({
 	s3: s3,
