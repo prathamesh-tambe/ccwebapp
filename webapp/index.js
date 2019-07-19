@@ -103,10 +103,10 @@ if(process.env.NODE_ENV == 'prod'){
 	//return false;
 	*/
 	getEC2Credentials('CodeDeployEC2ServiceRole').then((credentials)=>{
-		console.log("\n----- credentials ------",credentials);
-		/*AWS.config.accessKeyId=credentials.AccessKeyId;
-        AWS.config.secretAccessKey=credentials.SecretAccessKey;
-        AWS.config.sessionToken = credentials.Token;*/
+		//console.log("\n----- credentials ------",credentials);
+		aws.config.accessKeyId=credentials.AccessKeyId;
+        aws.config.secretAccessKey=credentials.SecretAccessKey;
+        aws.config.sessionToken = credentials.Token;
     }).catch((err)=>{
         console.log("\n-----errrrr------",err);
     });	
