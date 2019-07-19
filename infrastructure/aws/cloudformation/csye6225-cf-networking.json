@@ -85,6 +85,7 @@
                     "Ref": "VPC"
                 },
                 "CidrBlock":{"Ref":"PublicSubnetCidrBlock1"},
+                "MapPublicIpOnLaunch" : "true",
                 "AvailabilityZone": {"Fn::Join":["",[{"Ref":"AWS::Region"},{"Ref":"AvailabilityZone1"}]]},
                 "Tags": [
                     {
@@ -102,6 +103,7 @@
                     "Ref": "VPC"
                 },
                 "CidrBlock":{"Ref":"PublicSubnetCidrBlock2"},
+                "MapPublicIpOnLaunch" : "true",
                 "AvailabilityZone": {"Fn::Join":["",[{"Ref":"AWS::Region"},{"Ref":"AvailabilityZone2"}]]},
                 "Tags": [
                     {
@@ -119,6 +121,7 @@
                     "Ref": "VPC"
                 },
                 "CidrBlock":{"Ref":"PublicSubnetCidrBlock3"},
+                "MapPublicIpOnLaunch" : "true",
                 "AvailabilityZone": {"Fn::Join":["",[{"Ref":"AWS::Region"},{"Ref":"AvailabilityZone3"}]]},
                 "Tags": [
                     {
