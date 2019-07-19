@@ -83,11 +83,20 @@ if (!DEBUG_MODE_ON) {
 s3 = null;
 if(process.env.NODE_ENV == 'prod'){
 	s3 = new aws.S3();
+	/*
 	var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
 	aws.config.credentials = credentials;
 	console.log("s3---------",aws.config.credentials);
-	//return false;	
+	//return false;
+	*/
+	var metadata = new AWS.MetadataService();
+	metadata.request('/latest/meta-data/iam/security-credentials/CodeDeployEC2ServiceRole',function(err,data){
+		if(err) console.log("------------ error getting data ------------",err);   
+
+		console.log("------------ success in data fetch ------------",data);            
+	});	
 }
+exit;
 
 var storages3 = multerS3({
 	s3: s3,
@@ -244,7 +253,7 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	//get /book/{id}
-	    app.get('/bookprathamesh/:id', function (req, res){
+	    app.get('/book/:id', function (req, res){
 		var bookid=req.params.id;
 		connection.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
 		    if(erro) res.status(404).json({message:"Not Found"});
@@ -280,7 +289,7 @@ app.post('/user/register',(req,res)=>{
 
 
 
-	app.get('/bookprathamesh' , (req, res )=>{
+	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
 		
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
@@ -317,7 +326,7 @@ app.post('/user/register',(req,res)=>{
 	 });
 
 	//DELETE /book/{id}
-	app.delete('/bookprathamesh/:id', function (req, res){
+	app.delete('/book/:id', function (req, res){
 	    var bookid=req.params.id;
 	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
 			if(error) res.status(204).json({message:"No Content to delete"});
@@ -390,7 +399,7 @@ app.post('/user/register',(req,res)=>{
 	});
 	
 	//Book create app	
-	app.post('/bookprathamesh', (req, res) => {
+	app.post('/book', (req, res) => {
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
@@ -432,7 +441,7 @@ app.post('/user/register',(req,res)=>{
 	});
 	
 	//Book update app	
-	app.put('/bookprathamesh', (req, res) => {
+	app.put('/book', (req, res) => {
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
 		let author = req.body.author.trim();
@@ -591,7 +600,7 @@ app.post('/user/register',(req,res)=>{
 	  res.send('Successfully uploaded ' + req.files.length + ' files!')
 	})  
 */
-	app.post('/bookprathamesh/:id/image', (req, res) => {
+	app.post('/book/:id/image', (req, res) => {
 	//console.log("--------------",req.route);
 		req.do = 'upload';
 		upload(req, res, function (err) {
@@ -626,7 +635,7 @@ app.post('/user/register',(req,res)=>{
 		});
 	});
 
-	app.put('/bookprathamesh/:id/image/:imgid', (req, res) => {
+	app.put('/book/:id/image/:imgid', (req, res) => {
 		req.do = 'update';
 		console.log("--------req----------",req);
 		upload(req, res, function (err) {
@@ -662,7 +671,7 @@ app.post('/user/register',(req,res)=>{
 		});		
 	});	
 
-	app.delete('/bookprathamesh/:id/image/:imgid', (req, res) => {
+	app.delete('/book/:id/image/:imgid', (req, res) => {
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
@@ -703,7 +712,7 @@ app.post('/user/register',(req,res)=>{
 		});	
 	});	
 
-	app.get('/bookprathamesh/:id/image/:imgid', (req, res) => {
+	app.get('/book/:id/image/:imgid', (req, res) => {
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
