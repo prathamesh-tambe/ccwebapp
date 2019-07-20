@@ -271,7 +271,7 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	//get /book/{id}
-	    app.get('/book/:id', function (req, res){
+	    app.get('/bookpratham/:id', function (req, res){
 		var bookid=req.params.id;
 		connection.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
 		    if(erro) res.status(404).json({message:"Not Found"});
@@ -307,7 +307,7 @@ app.post('/user/register',(req,res)=>{
 
 
 
-	app.get('/book' , (req, res )=>{
+	app.get('/bookpratham' , (req, res )=>{
 		//res.json({msg : 'in book app'});
 		
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
@@ -343,8 +343,8 @@ app.post('/user/register',(req,res)=>{
 		 });
 	 });
 
-	//DELETE /book/{id}
-	app.delete('/book/:id', function (req, res){
+	//DELETE /bookpratham/{id}
+	app.delete('/bookpratham/:id', function (req, res){
 	    var bookid=req.params.id;
 	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
 			if(error) res.status(204).json({message:"No Content to delete"});
@@ -416,8 +416,8 @@ app.post('/user/register',(req,res)=>{
 		});
 	});
 	
-	//Book create app	
-	app.post('/book', (req, res) => {
+	//bookpratham create app	
+	app.post('/bookpratham', (req, res) => {
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
@@ -458,8 +458,8 @@ app.post('/user/register',(req,res)=>{
 		}				
 	});
 	
-	//Book update app	
-	app.put('/book', (req, res) => {
+	//bookpratham update app	
+	app.put('/bookpratham', (req, res) => {
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
 		let author = req.body.author.trim();
@@ -618,7 +618,7 @@ app.post('/user/register',(req,res)=>{
 	  res.send('Successfully uploaded ' + req.files.length + ' files!')
 	})  
 */
-	app.post('/book/:id/image', (req, res) => {
+	app.post('/bookpratham/:id/image', (req, res) => {
 	//console.log("--------------",req.route);
 		req.do = 'upload';
 		upload(req, res, function (err) {
@@ -659,7 +659,7 @@ app.post('/user/register',(req,res)=>{
 		});
 	});
 
-	app.put('/book/:id/image/:imgid', (req, res) => {
+	app.put('/bookpratham/:id/image/:imgid', (req, res) => {
 		req.do = 'update';
 		console.log("--------req----------",req);
 		upload(req, res, function (err) {
@@ -695,7 +695,7 @@ app.post('/user/register',(req,res)=>{
 		});		
 	});	
 
-	app.delete('/book/:id/image/:imgid', (req, res) => {
+	app.delete('/bookpratham/:id/image/:imgid', (req, res) => {
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
@@ -736,7 +736,7 @@ app.post('/user/register',(req,res)=>{
 		});	
 	});	
 
-	app.get('/book/:id/image/:imgid', (req, res) => {
+	app.get('/bookpratham/:id/image/:imgid', (req, res) => {
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
