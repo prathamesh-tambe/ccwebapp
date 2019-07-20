@@ -116,7 +116,7 @@
                                 },
                                 "sudo echo export NODE_DB_HOST >> /etc/profile.d/envvariable.sh \n",
                                 "sudo echo export NODE_S3_BUCKET >> /etc/profile.d/envvariable.sh \n",
-                                "source /etc/profile.d/envvariable.sh \n",
+                                "source /etc/profile.d/envvariable.sh \n"
                             ]
                         ]
                     }
