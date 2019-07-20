@@ -637,17 +637,22 @@ app.post('/user/register',(req,res)=>{
 				if(process.env.NODE_ENV == "dev") {
 					id = req.file.filename.split('.').slice(0, -1).join('.');
 					filename = imagePath+req.file.filename;
+					res.json({id:id,url:filename});
 				}else{
 					filename = s3.getSignedUrl('getObject', {
 						Bucket: conf.image.imageBucket,
 						Key: req.file.key,
-						Expires: signedUrlExpireSeconds
+						Expires: signedUrlExpireSeconds }, (err, urlv) => {
+						if (err){ console.log("s3 upload err--------",err)
+						}else{
+							console.log("\n ------urlv-----------",urlv)
+							id = req.file.key.split('.').slice(0, -1).join('.');
+							res.json({id:id,url:urlv});
+						}
 					})	
-					id = req.file.key.split('.').slice(0, -1).join('.');
 					console.log(" \n s3 file name ------- ",filename,"-----",req.file.key,"-------",signedUrlExpireSeconds);
 					//filename = '/'+req.file.key;
 				}
-				res.json({id:id,url:filename});
 			}
 		});
 	});
