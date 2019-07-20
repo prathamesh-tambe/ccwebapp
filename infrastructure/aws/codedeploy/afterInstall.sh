@@ -21,4 +21,4 @@ sudo npm install
 sudo npm i forever -g
 sudo forever stopall
 sudo forever start --minUptime 1000 --spinSleepTime 1000 index.js 
-forever list
+sudo forever list
