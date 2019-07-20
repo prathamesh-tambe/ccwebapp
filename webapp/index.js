@@ -151,6 +151,7 @@ var storages3 = multerS3({
 		  if(allowedformats.indexOf(ext) != -1){
 			  connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 				  if(erro) res.status(404).json({message:"Not Found"});
+				  console.log("\n-----------",find,req.params.id)
 				  if(find.length > 0 && find[0].image == null){
 					  var imgId = uuidv4();
 					  connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
