@@ -17,6 +17,8 @@ const multerS3 = require('multer-s3');
 
 var signedUrlExpireSeconds = 60 * 2;
 
+console.log("---- process env -----",process.env);
+
 //global common variables
 var imageDir = conf.image.imageBucket;
 var imagePath = conf.image.imageurl+imageDir;
