@@ -12,6 +12,7 @@
 #sudo rm -rf /opt/tomcat/logs/*.txt
 
 pwd
+forever list
 aws configure set default.region us-east-1
 aws configure list
 cd /home/centos/webapp/
