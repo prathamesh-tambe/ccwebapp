@@ -644,6 +644,7 @@ app.post('/user/register',(req,res)=>{
 						Expires: signedUrlExpireSeconds
 					})	
 					id = req.file.key.split('.').slice(0, -1).join('.');
+					console.log(" \n s3 file name ------- ",filename,"-----",req.file.key,"-------",signedUrlExpireSeconds);
 					//filename = '/'+req.file.key;
 				}
 				res.json({id:id,url:filename});
