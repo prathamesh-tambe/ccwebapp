@@ -12,6 +12,8 @@
 #sudo rm -rf /opt/tomcat/logs/*.txt
 
 pwd
+source /etc/profile.d/envvariable.sh
+
 sudo forever list
 sudo forever stopall
 sudo forever list
