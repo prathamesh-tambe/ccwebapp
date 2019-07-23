@@ -15,13 +15,12 @@ pwd
 whoami
 aws configure set default.region us-east-1
 aws configure list
-cd /home/centos/webapp/
 source /etc/profile.d/envvariable.sh
+cd /home/centos/webapp/
 pwd
 
 sudo npm install
 sudo npm i forever -g
-sudo forever list
 sudo forever stopall
 sudo forever list
 
