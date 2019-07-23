@@ -12,13 +12,18 @@
 #sudo rm -rf /opt/tomcat/logs/*.txt
 
 pwd
+whoami
 aws configure set default.region us-east-1
 aws configure list
 cd /home/centos/webapp/
+source /etc/profile.d/envvariable.sh
 pwd
 
 sudo npm install
 sudo npm i forever -g
+sudo forever list
 sudo forever stopall
-sudo forever start --minUptime 1000 --spinSleepTime 1000 index.js 
-forever list
+sudo forever list
+
+sudo forever start --minUptime 1000 --spinSleepTime 1000 index.js
+sudo forever list
