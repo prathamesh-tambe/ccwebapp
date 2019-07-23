@@ -19,10 +19,7 @@ source /etc/profile.d/envvariable.sh
 cd /home/centos/webapp/
 pwd
 
-npm install
-npm install pm2 -g
-#sudo forever stopall
-#sudo forever list
-nohup node index.js
-# sudo forever start --minUptime 1000 --spinSleepTime 1000 index.js
-# sudo forever list
+sudo npm install
+sudo npm install pm2 -g
+
+sudo pm2 start index.js
