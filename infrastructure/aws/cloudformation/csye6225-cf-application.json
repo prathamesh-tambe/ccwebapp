@@ -87,7 +87,7 @@
                                     "Fn::Join": [
                                         "",
                                         [
-                                            "echo NODE_DB_HOST=",
+                                            "sudo echo NODE_DB_HOST=",
                                             {
                                                 "Fn::GetAtt": [
                                                     "rdsinstance",
