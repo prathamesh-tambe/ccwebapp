@@ -15,6 +15,8 @@ pwd
 whoami
 aws configure set default.region us-east-1
 aws configure list
+cd /home/centos
+pwd
 source /etc/profile.d/envvariable.sh
 cd /home/centos/webapp/
 pwd
@@ -22,4 +24,4 @@ pwd
 sudo npm install
 sudo npm install pm2 -g
 
-sudo pm2 start index.js
+#sudo pm2 start index.js
