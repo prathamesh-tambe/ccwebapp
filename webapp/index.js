@@ -14,7 +14,14 @@ const fs = require('fs');
 const Config = require('./conf.js');
 conf = new Config();
 const multerS3 = require('multer-s3');
-
+const shell = require('shelljs');
+ 
+if (typeof(process.env.NODE_S3_BUCKET) == "undefined" ) {
+  if (shell.exec("source /etc/profile.d/envvariable.sh").code !== 0) {
+	shell.echo('Error: source exe');
+	shell.exit(1);
+  }
+}
 var signedUrlExpireSeconds = 60 * 2;
 
 console.log("---- process env -----",process.env);
