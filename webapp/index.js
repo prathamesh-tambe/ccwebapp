@@ -14,7 +14,7 @@ const fs = require('fs');
 const Config = require('./conf.js');
 conf = new Config();
 const multerS3 = require('multer-s3');
-require('dotenv').config({ path: '/var/' });
+require('dotenv').config({ path: '/var' });
 
 var signedUrlExpireSeconds = 60 * 2;
 
