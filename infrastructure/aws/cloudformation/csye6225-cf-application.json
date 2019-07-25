@@ -77,12 +77,9 @@
                                 "chmod +x ./install \n",
                                 "sudo ./install auto \n",
                                 "sudo service codedeploy-agent start \n",
-                                "sudo echo NODE_DB_USER=csye6225master > /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export NODE_DB_USER >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo NODE_DB_PASS=csye6225password >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export NODE_DB_PASS >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo NODE_ENV=prod >> /etc/profile.d/envvariable.sh \n",
-                                "sudo echo export NODE_ENV >> /etc/profile.d/envvariable.sh \n",
+                                "sudo echo NODE_DB_USER=csye6225master > /var/.env \n",
+                                "sudo echo NODE_DB_PASS=csye6225password >> /var/.env \n",
+                                "sudo echo NODE_ENV=prod >> /var/.env \n",
                                 {
                                     "Fn::Join": [
                                         "",
@@ -94,11 +91,10 @@
                                                     "Endpoint.Address"
                                                 ]
                                             },
-                                            " >> /etc/profile.d/envvariable.sh \n"
+                                            " >> /var/.env \n"
                                         ]
                                     ]
                                 },
-                                "sudo echo export NODE_DB_HOST >> /etc/profile.d/envvariable.sh \n",
                                 {
                                     "Fn::Join": [
                                         "",
@@ -107,12 +103,10 @@
                                             {
                                                 "Ref": "webappbucket"
                                             },
-                                            " >> /etc/profile.d/envvariable.sh \n"
+                                            " >> /var/.env \n"
                                         ]
                                     ]
-                                },
-                                "sudo echo export NODE_S3_BUCKET >> /etc/profile.d/envvariable.sh \n",
-                                "source /etc/profile.d/envvariable.sh \n"
+                                }
                             ]
                         ]
                     }

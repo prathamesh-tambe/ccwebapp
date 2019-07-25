@@ -3,9 +3,7 @@
 pwd
 whoami
 cd /home/centos/webapp
+sudo mkdir var
+sudo cp /var/.env /home/centos/ccwebapps/webapp/var
 pwd
-sudo chmod 777 /etc/profile.d/envvariable.sh 
-sudo -s
-source /etc/profile.d/envvariable.sh
-env
 sudo pm2 start index.js
