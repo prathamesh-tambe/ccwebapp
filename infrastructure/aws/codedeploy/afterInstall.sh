@@ -19,9 +19,10 @@ whoami
 aws configure set default.region us-east-1
 aws configure list
 cd /home/centos/webapp/
-cd /var/
+cd /var
 sudo chmod 666 .env
 pwd
+cd ..
 sudo npm install
 sudo npm install pm2 -g
 
