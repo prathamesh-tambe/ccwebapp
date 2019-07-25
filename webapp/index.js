@@ -11,10 +11,10 @@ var multer = require('multer');
 var path = require('path');
 var url = require('url');
 const fs = require('fs');
-const Config = require('./conf.js');
-conf = new Config();
 const multerS3 = require('multer-s3');
-require('dotenv').config({ path: '/var' });
+require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
+const Config = require('./conf.js');
+const conf = new Config();
 
 var signedUrlExpireSeconds = 60 * 2;
 
