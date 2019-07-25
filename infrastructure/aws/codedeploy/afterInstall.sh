@@ -11,11 +11,16 @@
 #sudo rm -rf /opt/tomcat/logs/*.log
 #sudo rm -rf /opt/tomcat/logs/*.txt
 
+
+sudo cp /var/.env /home/centos/webapp/var
+
 pwd
 whoami
 aws configure set default.region us-east-1
 aws configure list
 cd /home/centos/webapp/
+cd /var/
+sudo chmod 666 .env
 pwd
 sudo npm install
 sudo npm install pm2 -g
