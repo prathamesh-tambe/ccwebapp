@@ -17,7 +17,7 @@ const multerS3 = require('multer-s3');
 const shell = require('shelljs');
  
 if (typeof(process.env.NODE_S3_BUCKET) == "undefined" ) {
-  if (shell.exec("source /etc/profile.d/envvariable.sh").code !== 0) {
+  if (shell.exec("sh /etc/profile.d/envvariable.sh").code !== 0) {
 	shell.echo('Error: source exe');
 	shell.exit(1);
   }
