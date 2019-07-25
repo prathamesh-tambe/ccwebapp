@@ -19,4 +19,6 @@ cd /home/centos/webapp/
 pwd
 sudo npm install
 sudo npm install pm2 -g
+
+sudo pm2 kill
 sudo pm2 start index.js
