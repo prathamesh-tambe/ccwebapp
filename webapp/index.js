@@ -24,7 +24,7 @@ if (typeof(process.env.NODE_S3_BUCKET) == "undefined" ) {
 }
 var signedUrlExpireSeconds = 60 * 2;
 
-console.log("---- process env -----",process.env.NODE_S3_BUCKET);
+console.log("---- process env -----",process.env);
 
 //global common variables
 var imageDir = conf.image.imageBucket;
