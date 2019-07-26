@@ -391,7 +391,7 @@ app.post('/user/register',(req,res)=>{
 	//Basic app returns date  
 	app.get('/', function (req, res){
                 //testing statsd client
-                sdc.increment('some.counter');
+        sdc.increment('basic date return');
 		var header=req.headers['authorization']||'',
 		token=header.split(/\s+/).pop()||'',
 		auth=new Buffer.from(token, 'base64').toString(),
@@ -424,6 +424,7 @@ app.post('/user/register',(req,res)=>{
 	
 	//book create app	
 	app.post('/book', (req, res) => {
+		sdc.increment('get all books');
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
@@ -466,6 +467,7 @@ app.post('/user/register',(req,res)=>{
 	
 	//book update app	
 	app.put('/book', (req, res) => {
+		sdc.increment('update book');
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
 		let author = req.body.author.trim();
@@ -625,6 +627,7 @@ app.post('/user/register',(req,res)=>{
 	})  
 */
 	app.post('/book/:id/image', (req, res) => {
+		sdc.increment('upload image');
 	//console.log("--------------",req.route);
 		req.do = 'upload';
 		upload(req, res, function (err) {
@@ -666,6 +669,7 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	app.put('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('update image');
 		req.do = 'update';
 		console.log("--------req----------",req);
 		upload(req, res, function (err) {
@@ -702,6 +706,7 @@ app.post('/user/register',(req,res)=>{
 	});	
 
 	app.delete('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('delete image');
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
@@ -743,6 +748,7 @@ app.post('/user/register',(req,res)=>{
 	});	
 
 	app.get('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('get image');
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
