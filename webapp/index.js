@@ -392,7 +392,6 @@ app.post('/user/register',(req,res)=>{
 	app.get('/', function (req, res){
                 //testing lynx metrics increment for user get
                 metrics.increment('user.get');
-                increment();
 		var header=req.headers['authorization']||'',
 		token=header.split(/\s+/).pop()||'',
 		auth=new Buffer.from(token, 'base64').toString(),
