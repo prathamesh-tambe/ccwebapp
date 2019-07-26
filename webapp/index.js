@@ -15,10 +15,27 @@ const multerS3 = require('multer-s3');
 require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
 const Config = require('./conf.js');
 const conf = new Config();
-
 var SDC = require('statsd-client'),
     sdc = new SDC({host: 'localhost'});
 
+	const log4js = require('log4js');
+	log4js.configure({
+	  appenders: { cheese: { type: 'file', filename: '/home/centos/webapp/logs/webapp.log' } },
+	  categories: { default: { appenders: ['cheese'], level: 'auto' } }
+	});
+	 
+	const logger = log4js.getLogger('cheese');
+	logger.trace('Entering cheese testing');
+	logger.debug('Got cheese.');
+	logger.info('Cheese is Comté.');
+	logger.warn('Cheese is quite smelly.');
+	logger.error('Cheese is too ripe!');
+	logger.fatal('Cheese was breeding ground for listeria.');
+
+/*	
+	var logger = require('./log.js');
+	logger.info('*** Requested for First log... ***');
+*/
 var signedUrlExpireSeconds = 60 * 2;
 
 console.log("---- process env -----",process.env);

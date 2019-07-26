@@ -10,6 +10,15 @@ else
     sudo mkdir -p var
 fi
 
+if [ -d "logs" ] 
+then
+    echo "Directory /home/centos/webapp/logs exists." 
+else
+    sudo mkdir -p logs
+    sudo touch logs/webapp.log
+    sudo chmod 666 logs/webapp.log
+fi
+
 sudo cp /var/.env /home/centos/webapp/var
 sudo chmod 777 .env
 pwd
