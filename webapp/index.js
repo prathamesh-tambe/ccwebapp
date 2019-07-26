@@ -16,6 +16,9 @@ require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
 const Config = require('./conf.js');
 const conf = new Config();
 
+var lynx = require('lynx');
+var metrics = new lynx('localhost', 8125); // StatsD IP & Port
+
 var signedUrlExpireSeconds = 60 * 2;
 
 console.log("---- process env -----",process.env);
@@ -387,6 +390,9 @@ app.post('/user/register',(req,res)=>{
 
 	//Basic app returns date  
 	app.get('/', function (req, res){
+                //testing lynx metrics increment for user get
+                metrics.increment('user.get');
+                increment();
 		var header=req.headers['authorization']||'',
 		token=header.split(/\s+/).pop()||'',
 		auth=new Buffer.from(token, 'base64').toString(),
