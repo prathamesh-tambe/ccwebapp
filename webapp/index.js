@@ -21,7 +21,7 @@ var SDC = require('statsd-client'),
 	const log4js = require('log4js');
 	log4js.configure({
 	  appenders: { cheese: { type: 'file', filename: '/home/centos/webapp/logs/webapp.log' } },
-	  categories: { default: { appenders: ['cheese'], level: 'auto' } }
+	  categories: { default: { appenders: ['cheese'], level: 'info' } }
 	});
 	 
 	const logger = log4js.getLogger('cheese');
