@@ -11,11 +11,17 @@ var multer = require('multer');
 var path = require('path');
 var url = require('url');
 const fs = require('fs');
-const Config = require('./conf.js');
-conf = new Config();
 const multerS3 = require('multer-s3');
+require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
+const Config = require('./conf.js');
+const conf = new Config();
+
+var SDC = require('statsd-client'),
+    sdc = new SDC({host: 'localhost'});
 
 var signedUrlExpireSeconds = 60 * 2;
+
+console.log("---- process env -----",process.env);
 
 //global common variables
 var imageDir = conf.image.imageBucket;
@@ -80,14 +86,38 @@ if (!DEBUG_MODE_ON) {
 	console.log = function(){};
 }
 
+var metadata = new aws.MetadataService();
+function getEC2Credentials(rolename){
+	var promise = new Promise((resolve,reject)=>{
+		metadata.request('/latest/meta-data/iam/security-credentials/'+rolename,function(err,data){
+			if(err) reject(err);   
+
+			resolve(JSON.parse(data));            
+		});
+	});
+
+	return promise;
+};
+
 s3 = null;
 if(process.env.NODE_ENV == 'prod'){
 	s3 = new aws.S3();
+	/*
 	var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
 	aws.config.credentials = credentials;
-	console.log("s3---------",aws.config.credentials.accessKeyId);
-	//return false;	
+	console.log("s3---------",aws.config.credentials);
+	//return false;
+	*/
+	getEC2Credentials('CodeDeployEC2ServiceRole').then((credentials)=>{
+		//console.log("\n----- credentials ------",credentials);
+		aws.config.accessKeyId=credentials.AccessKeyId;
+        aws.config.secretAccessKey=credentials.SecretAccessKey;
+        aws.config.sessionToken = credentials.Token;
+    }).catch((err)=>{
+        console.log("\n-----errrrr------",err);
+    });	
 }
+
 
 var storages3 = multerS3({
 	s3: s3,
@@ -127,12 +157,13 @@ var storages3 = multerS3({
 		  if(allowedformats.indexOf(ext) != -1){
 			  connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 				  if(erro) res.status(404).json({message:"Not Found"});
+				  console.log("\n-----------",find,req.params.id)
 				  if(find.length > 0 && find[0].image == null){
 					  var imgId = uuidv4();
 					  connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 						  if(erro) res.status(404).json({message:"Not Found"});
 						  if(findRe.affectedRows > 0){
-							  connection.query('UPDATE book SET image=? WHERE img_id =?',[imgId,req.params.id],function (erro, findR) {
+							  connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
 								  if(erro) res.status(404).json({message:"Not Found"});
 								  if(findR.affectedRows){
 									  cb(null, imgId+ext);										
@@ -166,7 +197,8 @@ var deletefile = function(filenamev){
 }  
   
 app.post('/user/register',(req,res)=>{
-		let username = req.body.username;
+	sdc.increment('create user');
+	let username = req.body.username;
 		let pass = req.body.password;
 		console.log('req----',req.body,req.body.password, EmailValidator.validate(username));
 		if(!EmailValidator.validate(username)){
@@ -244,7 +276,8 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	//get /book/{id}
-	    app.get('/book/:id', function (req, res){
+	app.get('/book/:id', function (req, res){
+		sdc.increment('get book');
 		var bookid=req.params.id;
 		connection.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
 		    if(erro) res.status(404).json({message:"Not Found"});
@@ -282,7 +315,8 @@ app.post('/user/register',(req,res)=>{
 
 	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
-		
+		sdc.increment('get all books');
+
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
 			if (err) res.status(400).json({ message:'Error occurred' });
             if(result.length > 0){
@@ -318,7 +352,8 @@ app.post('/user/register',(req,res)=>{
 
 	//DELETE /book/{id}
 	app.delete('/book/:id', function (req, res){
-	    var bookid=req.params.id;
+		sdc.increment('delete book');
+		var bookid=req.params.id;
 	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
 			if(error) res.status(204).json({message:"No Content to delete"});
 			if(resultB.length > 0){
@@ -359,6 +394,8 @@ app.post('/user/register',(req,res)=>{
 
 	//Basic app returns date  
 	app.get('/', function (req, res){
+                //testing statsd client
+        sdc.increment('basic date return');
 		var header=req.headers['authorization']||'',
 		token=header.split(/\s+/).pop()||'',
 		auth=new Buffer.from(token, 'base64').toString(),
@@ -389,8 +426,9 @@ app.post('/user/register',(req,res)=>{
 		});
 	});
 	
-	//Book create app	
+	//book create app	
 	app.post('/book', (req, res) => {
+		sdc.increment('create books');
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
@@ -431,8 +469,9 @@ app.post('/user/register',(req,res)=>{
 		}				
 	});
 	
-	//Book update app	
+	//book update app	
 	app.put('/book', (req, res) => {
+		sdc.increment('update book');
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
 		let author = req.body.author.trim();
@@ -592,6 +631,7 @@ app.post('/user/register',(req,res)=>{
 	})  
 */
 	app.post('/book/:id/image', (req, res) => {
+		sdc.increment('upload image');
 	//console.log("--------------",req.route);
 		req.do = 'upload';
 		upload(req, res, function (err) {
@@ -612,21 +652,28 @@ app.post('/user/register',(req,res)=>{
 				if(process.env.NODE_ENV == "dev") {
 					id = req.file.filename.split('.').slice(0, -1).join('.');
 					filename = imagePath+req.file.filename;
+					res.json({id:id,url:filename});
 				}else{
 					filename = s3.getSignedUrl('getObject', {
 						Bucket: conf.image.imageBucket,
 						Key: req.file.key,
-						Expires: signedUrlExpireSeconds
+						Expires: signedUrlExpireSeconds }, (err, urlv) => {
+						if (err){ console.log("s3 upload err--------",err)
+						}else{
+							console.log("\n ------urlv-----------",urlv)
+							id = req.file.key.split('.').slice(0, -1).join('.');
+							res.json({id:id,url:urlv});
+						}
 					})	
-					id = req.file.key.split('.').slice(0, -1).join('.');
+					console.log(" \n s3 file name ------- ",filename,"-----",req.file.key,"-------",signedUrlExpireSeconds);
 					//filename = '/'+req.file.key;
 				}
-				res.json({id:id,url:filename});
 			}
 		});
 	});
 
 	app.put('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('update image');
 		req.do = 'update';
 		console.log("--------req----------",req);
 		upload(req, res, function (err) {
@@ -663,6 +710,7 @@ app.post('/user/register',(req,res)=>{
 	});	
 
 	app.delete('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('delete image');
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
@@ -704,6 +752,7 @@ app.post('/user/register',(req,res)=>{
 	});	
 
 	app.get('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('get image');
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
