@@ -15,10 +15,27 @@ const multerS3 = require('multer-s3');
 require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
 const Config = require('./conf.js');
 const conf = new Config();
-
 var SDC = require('statsd-client'),
     sdc = new SDC({host: 'localhost'});
 
+	const log4js = require('log4js');
+	log4js.configure({
+	  appenders: { cheese: { type: 'file', filename: '/home/centos/webapp/logs/webapp.log' } },
+	  categories: { default: { appenders: ['cheese'], level: 'auto' } }
+	});
+	 
+	const logger = log4js.getLogger('cheese');
+	logger.trace('Entering cheese testing');
+	logger.debug('Got cheese.');
+	logger.info('Cheese is Comté.');
+	logger.warn('Cheese is quite smelly.');
+	logger.error('Cheese is too ripe!');
+	logger.fatal('Cheese was breeding ground for listeria.');
+
+/*	
+	var logger = require('./log.js');
+	logger.info('*** Requested for First log... ***');
+*/
 var signedUrlExpireSeconds = 60 * 2;
 
 console.log("---- process env -----",process.env);
@@ -197,7 +214,8 @@ var deletefile = function(filenamev){
 }  
   
 app.post('/user/register',(req,res)=>{
-		let username = req.body.username;
+	sdc.increment('create user');
+	let username = req.body.username;
 		let pass = req.body.password;
 		console.log('req----',req.body,req.body.password, EmailValidator.validate(username));
 		if(!EmailValidator.validate(username)){
@@ -275,7 +293,8 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	//get /book/{id}
-	    app.get('/book/:id', function (req, res){
+	app.get('/book/:id', function (req, res){
+		sdc.increment('get book');
 		var bookid=req.params.id;
 		connection.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
 		    if(erro) res.status(404).json({message:"Not Found"});
@@ -313,7 +332,8 @@ app.post('/user/register',(req,res)=>{
 
 	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
-		
+		sdc.increment('get all books');
+
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
 			if (err) res.status(400).json({ message:'Error occurred' });
             if(result.length > 0){
@@ -349,7 +369,8 @@ app.post('/user/register',(req,res)=>{
 
 	//DELETE /book/{id}
 	app.delete('/book/:id', function (req, res){
-	    var bookid=req.params.id;
+		sdc.increment('delete book');
+		var bookid=req.params.id;
 	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
 			if(error) res.status(204).json({message:"No Content to delete"});
 			if(resultB.length > 0){
@@ -391,7 +412,7 @@ app.post('/user/register',(req,res)=>{
 	//Basic app returns date  
 	app.get('/', function (req, res){
                 //testing statsd client
-                sdc.increment('some.counter');
+        sdc.increment('basic date return');
 		var header=req.headers['authorization']||'',
 		token=header.split(/\s+/).pop()||'',
 		auth=new Buffer.from(token, 'base64').toString(),
@@ -424,6 +445,7 @@ app.post('/user/register',(req,res)=>{
 	
 	//book create app	
 	app.post('/book', (req, res) => {
+		sdc.increment('create books');
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
@@ -466,6 +488,7 @@ app.post('/user/register',(req,res)=>{
 	
 	//book update app	
 	app.put('/book', (req, res) => {
+		sdc.increment('update book');
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
 		let author = req.body.author.trim();
@@ -625,6 +648,7 @@ app.post('/user/register',(req,res)=>{
 	})  
 */
 	app.post('/book/:id/image', (req, res) => {
+		sdc.increment('upload image');
 	//console.log("--------------",req.route);
 		req.do = 'upload';
 		upload(req, res, function (err) {
@@ -666,6 +690,7 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	app.put('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('update image');
 		req.do = 'update';
 		console.log("--------req----------",req);
 		upload(req, res, function (err) {
@@ -702,6 +727,7 @@ app.post('/user/register',(req,res)=>{
 	});	
 
 	app.delete('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('delete image');
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
@@ -743,6 +769,7 @@ app.post('/user/register',(req,res)=>{
 	});	
 
 	app.get('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('get image');
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
