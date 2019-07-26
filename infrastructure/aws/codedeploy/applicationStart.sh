@@ -15,8 +15,8 @@ then
     echo "Directory /home/centos/webapp/logs exists." 
 else
     sudo mkdir -p logs
-    sudo touch webapp.log
-    sudo chmod 666 webapp.log
+    sudo touch logs/webapp.log
+    sudo chmod 666 logs/webapp.log
 fi
 
 sudo cp /var/.env /home/centos/webapp/var
