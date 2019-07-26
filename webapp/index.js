@@ -18,20 +18,8 @@ const conf = new Config();
 var SDC = require('statsd-client'),
     sdc = new SDC({host: 'localhost'});
 
-	const winston = require('winston');	
-	const logConfiguration = {
-		'transports': [
-			//new winston.transports.Console()
-			new winston.transports.File({
-				filename: path.resolve(__dirname,'/logs/webapp.log')
-			})
-		]
-	}
-	
-	const logger = winston.createLogger(logConfiguration);
-	console.log("__dirname",__dirname+'/logs/webapp.log');
-	logger.log('error', 'hello', { message: 'world' });
-	logger.info('hello', { message: 'world' });
+	var logger = require('./log.js');
+	logger.info('*** Requested for First log... ***');
 
 var signedUrlExpireSeconds = 60 * 2;
 
