@@ -15,9 +15,36 @@ const multerS3 = require('multer-s3');
 require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
 const Config = require('./conf.js');
 const conf = new Config();
-
 var SDC = require('statsd-client'),
     sdc = new SDC({host: 'localhost'});
+
+	const winston = require('winston');
+	const path = require('path');
+	
+	const logConfiguration = {
+		'transports': [
+			//new winston.transports.Console()
+			new winston.transports.File({
+				filename: path.resolve(__dirname, '../var/webapp.log')
+			})
+		]
+	}
+	const winston = require('winston');
+	const path = require('path');
+	
+	const logConfiguration = {
+		'transports': [
+			//new winston.transports.Console()
+			new winston.transports.File({
+				filename: path.resolve(__dirname, '/var/webapp.log')
+			})
+		]
+	}
+	
+	const logger = winston.createLogger(logConfiguration);
+	console.log("__dirname",__dirname);
+	logger.log('error', 'hello', { message: 'world' });
+	logger.info('hello', { message: 'world' });
 
 var signedUrlExpireSeconds = 60 * 2;
 
