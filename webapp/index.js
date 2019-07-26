@@ -16,6 +16,9 @@ require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
 const Config = require('./conf.js');
 const conf = new Config();
 
+var SDC = require('statsd-client'),
+    sdc = new SDC({host: 'localhost'});
+
 var signedUrlExpireSeconds = 60 * 2;
 
 console.log("---- process env -----",process.env);
@@ -387,6 +390,8 @@ app.post('/user/register',(req,res)=>{
 
 	//Basic app returns date  
 	app.get('/', function (req, res){
+                //testing statsd client
+                sdc.increment('some.counter');
 		var header=req.headers['authorization']||'',
 		token=header.split(/\s+/).pop()||'',
 		auth=new Buffer.from(token, 'base64').toString(),
