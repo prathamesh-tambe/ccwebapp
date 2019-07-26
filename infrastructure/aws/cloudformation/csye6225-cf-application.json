@@ -91,7 +91,7 @@
                                                     "Endpoint.Address"
                                                 ]
                                             },
-                                            " >> /var/.env \n"
+                                            ">> /var/.env \n"
                                         ]
                                     ]
                                 },
@@ -103,7 +103,7 @@
                                             {
                                                 "Ref": "webappbucket"
                                             },
-                                            " >> /var/.env \n"
+                                            ">> /var/.env \n"
                                         ]
                                     ]
                                 }
