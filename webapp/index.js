@@ -23,13 +23,13 @@ var SDC = require('statsd-client'),
 		'transports': [
 			//new winston.transports.Console()
 			new winston.transports.File({
-				filename: path.resolve(__dirname, '/logs/webapp.log')
+				filename: path.resolve(__dirname,'/logs/webapp.log')
 			})
 		]
 	}
 	
 	const logger = winston.createLogger(logConfiguration);
-	console.log("__dirname",__dirname);
+	console.log("__dirname",__dirname+'/logs/webapp.log');
 	logger.log('error', 'hello', { message: 'world' });
 	logger.info('hello', { message: 'world' });
 
