@@ -18,25 +18,12 @@ const conf = new Config();
 var SDC = require('statsd-client'),
     sdc = new SDC({host: 'localhost'});
 
-	const winston = require('winston');
-	const path = require('path');
-	
+	const winston = require('winston');	
 	const logConfiguration = {
 		'transports': [
 			//new winston.transports.Console()
 			new winston.transports.File({
-				filename: path.resolve(__dirname, '../var/webapp.log')
-			})
-		]
-	}
-	const winston = require('winston');
-	const path = require('path');
-	
-	const logConfiguration = {
-		'transports': [
-			//new winston.transports.Console()
-			new winston.transports.File({
-				filename: path.resolve(__dirname, '/var/webapp.log')
+				filename: path.resolve(__dirname, '/logs/webapp.log')
 			})
 		]
 	}
