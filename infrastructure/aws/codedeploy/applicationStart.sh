@@ -7,10 +7,10 @@ if [ -d "var" ]
 then
     echo "Directory /home/centos/webapp/var exists." 
 else
-    sudo mkdir var
+    sudo mkdir -p var
 fi
 
 sudo cp /var/.env /home/centos/webapp/var
-sudo chmod 666 .env
+sudo chmod 777 .env
 pwd
 sudo pm2 start index.js
