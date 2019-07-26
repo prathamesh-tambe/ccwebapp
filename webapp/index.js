@@ -197,7 +197,8 @@ var deletefile = function(filenamev){
 }  
   
 app.post('/user/register',(req,res)=>{
-		let username = req.body.username;
+	sdc.increment('create user');
+	let username = req.body.username;
 		let pass = req.body.password;
 		console.log('req----',req.body,req.body.password, EmailValidator.validate(username));
 		if(!EmailValidator.validate(username)){
@@ -275,7 +276,8 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	//get /book/{id}
-	    app.get('/book/:id', function (req, res){
+	app.get('/book/:id', function (req, res){
+		sdc.increment('get book');
 		var bookid=req.params.id;
 		connection.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
 		    if(erro) res.status(404).json({message:"Not Found"});
@@ -313,7 +315,8 @@ app.post('/user/register',(req,res)=>{
 
 	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
-		
+		sdc.increment('get all books');
+
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
 			if (err) res.status(400).json({ message:'Error occurred' });
             if(result.length > 0){
@@ -349,7 +352,8 @@ app.post('/user/register',(req,res)=>{
 
 	//DELETE /book/{id}
 	app.delete('/book/:id', function (req, res){
-	    var bookid=req.params.id;
+		sdc.increment('delete book');
+		var bookid=req.params.id;
 	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
 			if(error) res.status(204).json({message:"No Content to delete"});
 			if(resultB.length > 0){
@@ -424,7 +428,7 @@ app.post('/user/register',(req,res)=>{
 	
 	//book create app	
 	app.post('/book', (req, res) => {
-		sdc.increment('get all books');
+		sdc.increment('create books');
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
