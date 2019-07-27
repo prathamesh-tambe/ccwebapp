@@ -183,13 +183,8 @@ var storages3 = multerS3({
 					  connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 						  if(erro) res.status(404).json({message:"Not Found"});
 						  if(findRe.affectedRows > 0){
-<<<<<<< HEAD
 							  connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
 								  if(erro) res.status(404).json({message:"Not Found"});
-=======
-							  connection.query('UPDATE book SET image=? WHERE img_id =?',[imgId,req.params.id],function (erro, findR) {
-								  if(erro) { findR.status(404).json({message:"Not Found"});}
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 								  if(findR.affectedRows){
 									  cb(null, imgId+ext);										
 								  }else {
@@ -321,13 +316,9 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	//get /book/{id}
-<<<<<<< HEAD
 	app.get('/book/:id', function (req, res){
 		sdc.increment('get book');
 		logger.info("inside get book");
-=======
-	    app.get('/bookprathamesh/:id', function (req, res){
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 		var bookid=req.params.id;
 		connection.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
 		    if(erro) {
@@ -368,7 +359,7 @@ app.post('/user/register',(req,res)=>{
 
 
 
-	app.get('/bookprathamesh' , (req, res )=>{
+	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
 		sdc.increment('get all books');
 		logger.info("insdie get all books");
@@ -410,15 +401,10 @@ app.post('/user/register',(req,res)=>{
 	 });
 
 	//DELETE /book/{id}
-<<<<<<< HEAD
 	app.delete('/book/:id', function (req, res){
 		sdc.increment('delete book');
 		logger.info('inside delete book');
 		var bookid=req.params.id;
-=======
-	app.delete('/bookprathamesh/:id', function (req, res){
-	    var bookid=req.params.id;
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
 			if(error) {
 				logger.error('No Content to delete'); 
@@ -513,15 +499,10 @@ app.post('/user/register',(req,res)=>{
 		});
 	});
 	
-<<<<<<< HEAD
 	//book create app	
 	app.post('/book', (req, res) => {
 		sdc.increment('create books');
 		logger.info('inside create book'); 
-=======
-	//Book create app	
-	app.post('/bookprathamesh', (req, res) => {
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
@@ -568,15 +549,10 @@ app.post('/user/register',(req,res)=>{
 		}				
 	});
 	
-<<<<<<< HEAD
 	//book update app	
 	app.put('/book', (req, res) => {
 		sdc.increment('update book');
 		logger.info("inside update book"); 
-=======
-	//Book update app	
-	app.put('/bookprathamesh', (req, res) => {
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
 		let author = req.body.author.trim();
@@ -765,15 +741,10 @@ app.post('/user/register',(req,res)=>{
 	  res.send('Successfully uploaded ' + req.files.length + ' files!')
 	})  
 */
-<<<<<<< HEAD
 	app.post('/book/:id/image', (req, res) => {
 		sdc.increment('upload image');
 		logger.info('inside upload image'); 
 		//console.log("--------------",req.route);
-=======
-	app.post('/bookprathamesh/:id/image', (req, res) => {
-	//console.log("--------------",req.route);
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 		req.do = 'upload';
 		upload(req, res, function (err) {
 			console.log("req--------0",err);
@@ -819,13 +790,9 @@ app.post('/user/register',(req,res)=>{
 		});
 	});
 
-<<<<<<< HEAD
 	app.put('/book/:id/image/:imgid', (req, res) => {
 		sdc.increment('update image');
 		logger.info('inside update image'); 
-=======
-	app.put('/bookprathamesh/:id/image/:imgid', (req, res) => {
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 		req.do = 'update';
 		console.log("--------req----------",req);
 		upload(req, res, function (err) {
@@ -866,13 +833,9 @@ app.post('/user/register',(req,res)=>{
 		});		
 	});	
 
-<<<<<<< HEAD
 	app.delete('/book/:id/image/:imgid', (req, res) => {
 		sdc.increment('delete image');
 		logger.info('inside delete image'); 
-=======
-	app.delete('/bookprathamesh/:id/image/:imgid', (req, res) => {
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
@@ -918,12 +881,8 @@ app.post('/user/register',(req,res)=>{
 		});	
 	});	
 
-<<<<<<< HEAD
 	app.get('/book/:id/image/:imgid', (req, res) => {
 		sdc.increment('get image');
-=======
-	app.get('/bookprathamesh/:id/image/:imgid', (req, res) => {
->>>>>>> ab2d93b14507a0c83bf9443b8e5d9acaf6c9e063
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
