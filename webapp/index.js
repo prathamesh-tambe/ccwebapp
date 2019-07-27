@@ -361,7 +361,7 @@ app.post('/user/register',(req,res)=>{
 
 	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
-		sdc.increment('get all books');
+		sdc.increment('get all books',1);
 		logger.info("insdie get all books");
 
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
