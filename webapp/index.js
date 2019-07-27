@@ -10,6 +10,37 @@ var multer = require('multer');
 var path = require('path');
 var url = require('url');
 const fs = require('fs');
+<<<<<<< HEAD
+const multerS3 = require('multer-s3');
+require('dotenv').config({ path: '/home/centos/webapp/var/.env' });
+const Config = require('./conf.js');
+const conf = new Config();
+var SDC = require('statsd-client'),
+    sdc = new SDC({host: 'localhost'});
+
+	const log4js = require('log4js');
+	log4js.configure({
+	  appenders: { logs: { type: 'file', filename: '/home/centos/webapp/logs/webapp.log' } },
+	  categories: { default: { appenders: ['logs'], level: 'info' } }
+	});
+	 
+	const logger = log4js.getLogger('logs');
+	/*logger.trace('Entering cheese testing');
+	logger.debug('Got cheese.');
+	logger.info('Cheese is Comté.');
+	logger.warn('Cheese is quite smelly.');
+	logger.error('Cheese is too ripe!');
+	logger.fatal('Cheese was breeding ground for listeria.');*/
+
+/*	
+	var logger = require('./log.js');
+	logger.info('*** Requested for First log... ***');
+*/
+var signedUrlExpireSeconds = 60 * 2;
+=======
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
+
+console.log("---- process env -----",process.env);
 
 //global common variables
 var imageDir = "images/";
@@ -24,8 +55,29 @@ var connection = mysql.createConnection({
 });
 
 connection.connect(function(err) {
+<<<<<<< HEAD
+  if (err){
+		logger.fatal(err);
+		console.log(err);
+	  	throw err;
+	}else{
+		connection.query("CREATE TABLE IF NOT EXISTS `user` (`id` INT NOT NULL AUTO_INCREMENT,`username` VARCHAR(255) NOT NULL,`password` VARCHAR(255) NOT NULL,`cdate` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY (`id`)) ENGINE=InnoDB;",function (erro, find) {
+		    if(find.warningCount == 1) { console.log("users already exists"); }
+		    else{ logger.info('users table created successfully'); console.log(find,"users table created successfully"); }
+		});
+		connection.query('CREATE TABLE IF NOT EXISTS `book` (`id` VARCHAR(255) NOT NULL,`title` VARCHAR(255) NOT NULL,`author` VARCHAR(100) NULL,`isbn` VARCHAR(255) NULL,`quantity` INT NULL,`image` VARCHAR(255),PRIMARY KEY (`id`));',function (erro, find) {
+		    if(find.warningCount == 1) { console.log("books already exists"); }
+		    else{ logger.info('book table created successfully'); console.log(find,"book table created successfully"); }
+		});
+		connection.query('CREATE TABLE IF NOT EXISTS `image` (`img_id` VARCHAR(255) NOT NULL,`url` VARCHAR(255) NULL);',function (erro, find) {
+		    if(find.warningCount == 1) { console.log("images already exists"); }
+		    else{ logger.info('image table created successfully'); console.log("image table created successfully"); }
+		});
+	}
+=======
   if (err) throw err
   console.log('You are now connected with mysql database...')
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 })
 //end mysql connection
 
@@ -38,12 +90,10 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 //create app server
 var server = app.listen(3000, function () {
-
+  logger.trace('App started');
   var host = server.address().address
   var port = server.address().port
-
   console.log("Example app listening at http://%s:%s", host, port)
-
 });
 
 const saltRounds = 10;
@@ -56,6 +106,126 @@ if (!DEBUG_MODE_ON) {
 	console.log = function(){};
 }
 
+<<<<<<< HEAD
+var metadata = new aws.MetadataService();
+function getEC2Credentials(rolename){
+	var promise = new Promise((resolve,reject)=>{
+		metadata.request('/latest/meta-data/iam/security-credentials/'+rolename,function(err,data){
+			if(err){
+				logger.fatal(err);
+				reject(err);   
+			}else{
+				resolve(JSON.parse(data));
+			} 
+		});
+	});
+
+	return promise;
+};
+
+s3 = null;
+if(process.env.NODE_ENV == 'prod'){
+	s3 = new aws.S3();
+	/*
+	var credentials = new aws.SharedIniFileCredentials({profile: 'default'});
+	aws.config.credentials = credentials;
+	console.log("s3---------",aws.config.credentials);
+	//return false;
+	*/
+	getEC2Credentials('CodeDeployEC2ServiceRole').then((credentials)=>{
+		//console.log("\n----- credentials ------",credentials);
+		aws.config.accessKeyId=credentials.AccessKeyId;
+        aws.config.secretAccessKey=credentials.SecretAccessKey;
+        aws.config.sessionToken = credentials.Token;
+    }).catch((err)=>{
+		logger.fatal(err);
+		console.log("\n-----errrrr------",err);
+    });	
+}
+
+
+var storages3 = multerS3({
+	s3: s3,
+	bucket: conf.image.imageBucket,
+	key: function (req, file, cb) {
+	  if(req.do=='update'){	
+		  ext = path.extname(file.originalname);
+		  allowedformats = ['.jpg','.jpeg','.png'];  
+		  console.log(" exttion cascasc hyat aahe value ",allowedformats.indexOf(ext),file);
+		  if(allowedformats.indexOf(ext) != -1){
+			  connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
+				  if(erro) res.status(403).json({message:"Error occurred"});
+				  if(find.length == 0){ cb(3); }else{
+				  if(find[0].image != null){
+					  connection.query('UPDATE image SET url=? WHERE img_id =?',[find[0].image+ext,find[0].image],function (erro, findR) {
+						  if(erro) res.status(404).json({message:"Not Found"});
+						  if(findR.affectedRows){
+							  console.log("imgId+ext------",find[0].image+ext);
+							  cb(null, find[0].image+ext);										
+						  }else {
+							  cb(3);
+						  }
+					  });
+				  }else {
+					  cb(2);
+				  }
+				  }
+			  });
+						  
+		  }else{
+			  cb(1);		// 1 for not match 
+		  }
+	  }else{
+		  ext = path.extname(file.originalname);
+		  allowedformats = ['.jpg','.jpeg','.png'];  
+		  console.log(" exttion value ",allowedformats.indexOf(ext),file);
+		  if(allowedformats.indexOf(ext) != -1){
+			  connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
+				  if(erro) res.status(404).json({message:"Not Found"});
+				  console.log("\n-----------",find,req.params.id)
+				  if(find.length > 0 && find[0].image == null){
+					  var imgId = uuidv4();
+					  connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
+						  if(erro) res.status(404).json({message:"Not Found"});
+						  if(findRe.affectedRows > 0){
+							  connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
+								  if(erro) res.status(404).json({message:"Not Found"});
+								  if(findR.affectedRows){
+									  cb(null, imgId+ext);										
+								  }else {
+									  cb(3);
+								  }
+							  });
+						  }else {
+							  cb(3);
+						  }
+					  });
+					  
+				  }else {
+					  cb(2);
+				  }
+			  });	
+				  
+		  }else{
+			  cb(1);		// 1 for not match 
+		  }				
+	  }
+	}
+  })
+
+var deletefile = function(filenamev){
+	var params = {  Bucket: imageDir, Key: filenamev };
+	s3.deleteObject(params, function(err, data) {
+	  if (err) {
+		logger.fatal(err);
+		console.log(err, err.stack);  // error
+	  }else{
+		console.log("file deleted");
+	  }                      // deleted
+	});  
+}  
+  
+=======
 //rest api to get all customers
 app.get('/customer', function (req, res) {
    connection.query('select * from customer', function (error, results, fields) {
@@ -63,22 +233,27 @@ app.get('/customer', function (req, res) {
 	  res.end(JSON.stringify(results));
 	});
 });
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 app.post('/user/register',(req,res)=>{
-		let username = req.body.username;
+	sdc.increment('create user');
+	let username = req.body.username;
 		let pass = req.body.password;
 		console.log('req----',req.body,req.body.password, EmailValidator.validate(username));
 		if(!EmailValidator.validate(username)){
+			logger.warn('Email Id not valid');
 			return res.status(401).json({ message: 'Email Id not valid' });
 		}
 		
 
 		connection.query('SELECT * FROM user WHERE username = ?',[username], function (error, results, fields) {
   			if (error) {
+				logger.error(error);
 				throw error;
 			}else{
   				//console.log('Data is ', results.length);
 				if(results.length > 0){
 					console.log('Data is true', results.length)
+					logger.info("user already exists");
 					res.json({ message:"user already exists" });	
 				}else{
 					console.log('Data is false', results.length)
@@ -90,12 +265,18 @@ app.post('/user/register',(req,res)=>{
 							//console.log('hash-------',hash);
 							if(err) throw err;							
 							connection.query('INSERT INTO user (username, password) VALUES (?, ?); ',[username,hash], function (error, results, fields) {
-  								if (error) throw error;
-  								console.log('The solution is: ', results[0]);
-								res.json({ message:'added successfully' });							
+  								if (error){
+									logger.error(error);
+									throw error;
+								  }else{
+									logger.info('added successfully');  
+									console.log('The solution is: ', results[0]);
+									res.json({ message:'added successfully' });
+								  }							
 							});  			
 						});
 					}else{
+						logger.error('password not containg nist stadards');  
 						res.json({ message:'password not containg nist stadards' });					
 					}
 										
@@ -107,6 +288,7 @@ app.post('/user/register',(req,res)=>{
 	// global authorization check app
 	app.all('*',function(req,res,next){
 		if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+			logger.error('password not containg nist stadards');  
 			return res.status(401).json({ message: 'User not logged in' });
 		}else{
 			var header=req.headers['authorization']||'',
@@ -118,21 +300,27 @@ app.post('/user/register',(req,res)=>{
 	
 			connection.query('SELECT * FROM user WHERE username = ?',[username], function (error, results, fields) {
 				if (error) {
+					logger.error('No such user');
 					res.status(401).json({ message : 'No such user' });
 				}else{
 					if(results.length > 0){
 						bcrypt.compare(password, results[0].password, function(err, resv) {
 							console.log("res---------",resv);    				
 							// res == true
-							if (error) throw error;	
+							if (error){
+								logger.error(error);
+								throw error;	
+							} 	
 							if(resv){
 								next();
 								//res.json({ crrdate : new Date().toISOString() });
 							}else{
+								logger.error('password does not match');
 								res.status(401).json({ message : 'password does not match' });
 							}
 						});	
 					}else{
+						logger.error('user does not exists');
 						console.log('Data is false', results.length)
 						res.status(401).json({ message : 'user does not exists' });
 					}
@@ -142,10 +330,19 @@ app.post('/user/register',(req,res)=>{
 	});
 
 	//get /book/{id}
+<<<<<<< HEAD
+	app.get('/book/:id', function (req, res){
+		sdc.increment('get book');
+		logger.info("inside get book");
+=======
 	    app.get('/book/ishta/:id', function (req, res){
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 		var bookid=req.params.id;
 		connection.query('SELECT * FROM book WHERE id =?',[bookid],function (erro, find) {
-		    if(erro) res.status(404).json({message:"Not Found"});
+		    if(erro) {
+				logger.error("Not Found");
+				res.status(404).json({message:"Not Found"});
+			}
 		    if(find.length>0){
 				if(find[0].image != null){
 					connection.query('SELECT * FROM image WHERE id = ?',[find[0].image],function (error,resultSelect, field) {
@@ -157,10 +354,12 @@ app.post('/user/register',(req,res)=>{
 						}
 					});			
 				}else{
+					logger.error("Not Found");
 					res.json(find);
 				}
 			}
 			else {
+				logger.error("Not Found");
 				res.status(404).json({message:"Not Found"});
 			}
 		});
@@ -170,8 +369,15 @@ app.post('/user/register',(req,res)=>{
 
 	app.get('/book/ishita' , (req, res )=>{
 		//res.json({msg : 'in book app'});
+<<<<<<< HEAD
+		sdc.increment('get all books');
+		logger.info("insdie get all books");
+
+		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.img_id", function(err, result, field){
+=======
 		
 		connection.query( "SELECT * From book LEFT JOIN image ON book.image = image.id", function(err, result, field){
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 			if (err) res.status(400).json({ message:'Error occurred' });
             if(result.length > 0){
 				console.log("result all books",result);
@@ -189,7 +395,10 @@ app.post('/user/register',(req,res)=>{
 						res.json(result);
 					}
 				}
-			}else{res.status(204).json({message:"No Content"});}
+			}else{
+				logger.info("No Content");
+				res.status(204).json({message:"No Content"});
+			}
 		 });
 
 /*
@@ -221,34 +430,68 @@ app.post('/user/register',(req,res)=>{
 	 });
 
 	//DELETE /book/{id}
+<<<<<<< HEAD
+	app.delete('/book/:id', function (req, res){
+		sdc.increment('delete book');
+		logger.info('inside delete book');
+		var bookid=req.params.id;
+=======
 	app.delete('/book/ishita/:id', function (req, res){
 	    var bookid=req.params.id;
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 	    connection.query('select * FROM book WHERE id = ?',[bookid],function (error,resultB, field) {
-			if(error) res.status(204).json({message:"No Content to delete"});
+			if(error) {
+				logger.error('No Content to delete'); 
+				res.status(204).json({message:"No Content to delete"});
+			}
 			if(resultB.length > 0){
 				connection.query('DELETE FROM book WHERE id = ?',[bookid],function (error,result, field) {
 					if(error || !result){ 
+						logger.error(error);
 						res.status(204).json({message:"No Content"});
 					}else{
 						if(resultB[0].image != null){
+<<<<<<< HEAD
+							connection.query('SELECT * FROM image WHERE img_id = ?',[resultB[0].image],function (error,resultSelect, field) {
+								if(error) {
+									logger.error('No image Content to delete'); 
+									res.status(204).json({message:"No image Content to delete"});
+								}
+								if(resultSelect.length > 0){
+									connection.query('DELETE FROM image WHERE img_id = ?',[resultB[0].image],function (error,resulti, field) {
+										if(error) {
+											logger.error('No image Content to delete');
+											res.status(204).json({message:"No image Content to delete"}); 
+										}
+										if(process.env.NODE_ENV == "dev"){
+											fs.unlink(imageDir+resultSelect[0].url);
+										}else{
+											deletefile(resultSelect[0].url);
+										}
+										logger.info('deleted successfully'); 
+=======
 							connection.query('SELECT * FROM image WHERE id = ?',[resultB[0].image],function (error,resultSelect, field) {
 								if(error) res.status(204).json({message:"No image Content to delete"}); 
 								if(resultSelect.length > 0){
 									connection.query('DELETE FROM image WHERE id = ?',[resultB[0].image],function (error,resulti, field) {
 										if(error) res.status(204).json({message:"No image Content to delete"}); 
 										fs.unlink(imageDir+resultSelect[0].url);
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 										res.json({message:"deleted successfully"});
 									});
 								}else{
+									logger.error('image does not exists in table'); 
 									res.status(404).json({message:"image does not exists in table"});
 								}	
 							});		
 						}else{
+							logger.info('deleted successfully'); 
 							res.json({message:"deleted successfully"});
 						}
 					}
 				});
 			}else{
+				logger.error('No Content to delete'); 
 				res.status(204).json({message:"No Content to delete"});
 			} 
 		});	
@@ -259,6 +502,9 @@ app.post('/user/register',(req,res)=>{
 
 	//Basic app returns date  
 	app.get('/', function (req, res){
+                //testing statsd client
+        sdc.increment('basic date return');
+		logger.info('inside basic date return'); 
 		var header=req.headers['authorization']||'',
 		token=header.split(/\s+/).pop()||'',
 		auth=new Buffer.from(token, 'base64').toString(),
@@ -268,20 +514,27 @@ app.post('/user/register',(req,res)=>{
 	
 		connection.query('SELECT * FROM user WHERE username = ?',[username], function (error, results, fields) {
 			if (error) {
+				logger.error(error); 
 				throw error;
 			}else{
 				if(results.length > 0){
 					bcrypt.compare(password, results[0].password, function(err, resv) {
 						console.log("res---------",resv);    				
 						// res == true
-						if (error) throw error;	
+						if (error) {
+							logger.error(error); 
+							throw error;	
+						}
 						if(resv){
+							logger.info(new Date().toISOString()); 
 							res.json({ crrdate : new Date().toISOString() });
 						}else{
+							logger.error('password does not match'); 
 							res.json({ message : 'password does not match' });
 						}
 					});	
 				}else{
+					logger.error('user does not exists'); 
 					console.log('Data is false', results.length)
 					res.json({ message : 'user does not exists' });
 				}
@@ -289,8 +542,15 @@ app.post('/user/register',(req,res)=>{
 		});
 	});
 	
+<<<<<<< HEAD
+	//book create app	
+	app.post('/book', (req, res) => {
+		sdc.increment('create books');
+		logger.info('inside create book'); 
+=======
 	//Book create app	
 	app.post('/book/ishita', (req, res) => {
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 		let id = (req.body.id) ? req.body.id.trim() : '';
 		let title = (req.body.title) ? req.body.title.trim() : '';
 		let author = (req.body.author) ? req.body.author.trim() : '';
@@ -305,13 +565,17 @@ app.post('/user/register',(req,res)=>{
 			}
 			connection.query('INSERT INTO book (`id`, `title`, `author`, `isbn`,`quantity`,`image`) VALUES (?,?,?,?,?,?)',[uuidv4(),title,author,isbn,quantity,imageid], function (error, results, fields) {
 	  			if (error) {
+					logger.error(error); 
 					throw res.status(400).json({ message:"connection error",err:error });
 				}else{
 					//console.log("result-----",results);
 					if(results){
 						if(url){
 							connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imageid,url],function (erro, findRe) {
-								if(erro) res.status(404).json({message:"error occured while inserting image"});
+								if(erro){
+									logger.error("error occured while inserting image"); 
+									res.status(404).json({message:"error occured while inserting image"});
+								}
 								if(findRe.affectedRows > 0){
 									res.status(201).json({ message:'created' });
 								}else{
@@ -322,17 +586,26 @@ app.post('/user/register',(req,res)=>{
 							res.status(201).json({ message:'created' });
 						}
 				}else{
-						res.status(400).json({ message:"connection error",err:error });
+					logger.error(error); 
+					res.status(400).json({ message:"connection error",err:error });
 					}
 				}
 			});
 		}else{
+			logger.error("Bad Request"); 
 			res.status(400).json({ message:"Bad Request" });
 		}				
 	});
 	
+<<<<<<< HEAD
+	//book update app	
+	app.put('/book', (req, res) => {
+		sdc.increment('update book');
+		logger.info("inside update book"); 
+=======
 	//Book update app	
 	app.put('/book/ishita', (req, res) => {
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
 		let author = req.body.author.trim();
@@ -343,7 +616,10 @@ app.post('/user/register',(req,res)=>{
 
 		if(id.length > 0 && (title.length > 0 || author.length > 0 || isbn.length > 0 || quantity > 0)){
 			connection.query('SELECT * from book WHERE id = ?',[id], function (error, results, fields) {
-				if (error) throw res.status(400).json({ message:'Error occurred' });
+				if (error){
+					logger.error(error); 
+					throw res.status(400).json({ message:'Error occurred' });
+				} 
 				if(results.length > 0){
 					var imgid = uuidv4();
 					if(results[0].image){
@@ -361,6 +637,7 @@ app.post('/user/register',(req,res)=>{
 					query = query + ((imgid.length > 0) ? ',' : '');
 					query = query + ((quantity > 0) ? ' quantity = "'+quantity+'"' : '');
 					if(quantity < 0){
+						logger.error("bad request"); 
 						res.status(400).json({ message:"Bad Request" });
 						return false;
 					}
@@ -368,46 +645,68 @@ app.post('/user/register',(req,res)=>{
 					query = query + ' WHERE id = "'+id+'"';
 					console.log("query --------",query);
 					connection.query(query, function (error, resultsn, fields) {
-						if (error) throw res.status(400).json({ message:'Error occurred',err:error });
+						if (error) {
+							logger.error(error); 
+							throw res.status(400).json({ message:'Error occurred',err:error });
+						}
 						if(resultsn.affectedRows > 0){
+<<<<<<< HEAD
+							connection.query('select * from image WHERE img_id =?',[results[0].image],function (erro, findR) {
+								if(erro) {
+									logger.error(erro); 
+									res.status(404).json({message:"Not Found"});
+								}
+=======
 							connection.query('select * from image WHERE id =?',[results[0].image],function (erro, findR) {
 								if(erro) res.status(404).json({message:"Not Found"});
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 								if(imgurl){
 									if(findR.length > 0){
 										connection.query('UPDATE image SET url=? WHERE id =?',[imgurl,results[0].image],function (erro, findR) {
 											if(erro) res.status(404).json({message:"Not Found"});
 											if(findR.affectedRows){
 												//console.log("imgId+ext------",find[0].image+ext);
+												logger.info('Content updated successfully'); 
 												res.status(200).json({ message:'Content updated successfully' });
 											}else {
+												logger.info('Content updated successfully'); 
 												res.status(200).json({ message:'Content updated successfully' });
 											}
 										});		
 									}else{
 										connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imgid,imgurl],function (erro, findR) {
-											if(erro) res.status(404).json({message:"Not Found"});
+											if(erro) {
+												logger.error(erro); 
+												res.status(404).json({message:"Not Found"});
+											}
 											if(findR.length > 0){
 												//console.log("imgId+ext------",find[0].image+ext);
+												logger.info('Content updated successfully'); 
 												res.status(200).json({ message:'Content updated successfully' });
 											}else {
+												logger.info('Content updated successfully'); 
 												res.status(200).json({ message:'Content updated successfully' });
 											}
 										});
 									}	
 								}else{
+									logger.info('Content updated successfully'); 
 									res.status(200).json({ message:'Content updated successfully' });
 								}
 							});
 
 						}else{
+							logger.error('400 error occured'); 
 							res.status(400).json({ message:'Error occurred' });								
 						}
 					});			
 				}else{
+					logger.error('204 no content'); 
 					res.status(204).json({ message:'No Content' });
 				}
 			});		
 		}else{
+			logger.error('400 bad request'); 
 			res.status(400).json({ message:"Bad Request" });
 		}
     });
@@ -451,14 +750,28 @@ app.post('/user/register',(req,res)=>{
 			console.log(" exttion value ",allowedformats.indexOf(ext),file);
 			if(allowedformats.indexOf(ext) != -1){
 				connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
-					if(erro) res.status(404).json({message:"Not Found"});
+					if(erro) {
+						logger.error('404 Not Found'); 
+						res.status(404).json({message:"Not Found"});
+					}
 					if(find.length > 0 && find[0].image == null){
 						var imgId = uuidv4();
+<<<<<<< HEAD
+						connection.query('INSERT INTO image (img_id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
+							if(erro){
+								logger.error('404 Not Found'); 
+								res.status(404).json({message:"Not Found"});
+							}
+=======
 						connection.query('INSERT INTO image (id,url) VALUES (?,?)',[imgId,imgId+ext],function (erro, findRe) {
 							if(erro) res.status(404).json({message:"Not Found"});
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 							if(findRe.affectedRows > 0){
 								connection.query('UPDATE book SET image=? WHERE id =?',[imgId,req.params.id],function (erro, findR) {
-									if(erro) res.status(404).json({message:"Not Found"});
+									if(erro) {
+										logger.error('404 Not Found'); 
+										res.status(404).json({message:"Not Found"});
+									}
 									if(findR.affectedRows){
 										cb(null, imgId+ext);										
 									}else {
@@ -485,50 +798,109 @@ app.post('/user/register',(req,res)=>{
 	var upload = multer({ storage: storage }).single('image');
 
 	app.post('/book/:id/image', (req, res) => {
-	//console.log("--------------",req.route);
+		sdc.increment('upload image');
+		logger.info('inside upload image'); 
+		//console.log("--------------",req.route);
 		req.do = 'upload';
 		upload(req, res, function (err) {
 			console.log("req--------0",err);
 			if (err){
 				if(err == 1){
+					logger.error('Image formats allowed png,jpg or jpeg'); 
 					console.log(JSON.stringify(err));
 					res.status(400).json({message:"Image formats allowed png,jpg or jpeg"});	
 				}else if(err == 2){
+					logger.error('book doesnot exists'); 
 					res.status(404).json({message:"book doesnot exists"});
 				}else{
+					logger.error('403 error occured while image upload'); 
 					res.status(403).json({message:"Error occured"});
 				}
 			} else {
 				console.log("ascascascascac---------",req.file);
+<<<<<<< HEAD
+				var id = '';
+				var filename = '';
+				if(process.env.NODE_ENV == "dev") {
+					id = req.file.filename.split('.').slice(0, -1).join('.');
+					filename = imagePath+req.file.filename;
+					res.json({id:id,url:filename});
+				}else{
+					filename = s3.getSignedUrl('getObject', {
+						Bucket: conf.image.imageBucket,
+						Key: req.file.key,
+						Expires: signedUrlExpireSeconds }, (err, urlv) => {
+						if (err){ 
+							logger.error('s3 upload error occured while image upload'); 
+							console.log("s3 upload err--------",err)
+						}else{
+							logger.info(urlv); 
+							console.log("\n ------urlv-----------",urlv)
+							id = req.file.key.split('.').slice(0, -1).join('.');
+							res.json({id:id,url:urlv});
+						}
+					})	
+					console.log(" \n s3 file name ------- ",filename,"-----",req.file.key,"-------",signedUrlExpireSeconds);
+					//filename = '/'+req.file.key;
+				}
+=======
 				res.json({id:req.file.filename.split('.').slice(0, -1).join('.'),url:imagePath+req.file.filename});
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 			}
 		});
 	});
 
 	app.put('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('update image');
+		logger.info('inside update image'); 
 		req.do = 'update';
 		console.log("--------req----------",req);
 		upload(req, res, function (err) {
 			console.log("req--------0",err);
 			if (err){
 				if(err == 1){
+					logger.error("Image formats allowed png,jpg or jpeg"); 
 					console.log(JSON.stringify(err));
 					res.status(400).json({message:"Image formats allowed png,jpg or jpeg"});	
 				}else if(err == 2){
+					logger.error("Image does not Exists"); 
 					res.status(404).json({message:"Image does not Exists"});
 				}else if(err == 3){
+					logger.error("Book does not exists"); 
 					res.status(404).json({message:"Book does not exists"});
 				}else{
+					logger.error("403 Error occured"); 
 					res.status(403).json({message:"Error occured"});
 				}
 			} else {
+<<<<<<< HEAD
+				var id = '';
+				var filename = '';
+				if(process.env.NODE_ENV == "dev") {
+					id = req.file.filename.split('.').slice(0, -1).join('.');
+					filename = imagePath+req.file.filename;
+				}else{
+					filename = s3.getSignedUrl('getObject', {
+						Bucket: conf.image.imageBucket,
+						Key: req.file.key,
+						Expires: signedUrlExpireSeconds
+					})	
+					id = req.file.key.split('.').slice(0, -1).join('.');
+					//filename = '/'+req.file.key;
+				}
+				logger.info(filename); 
+				res.json({id:id,url:filename});
+=======
 				console.log("ascascascascac---------",req.file);
 				res.json({id:req.file.filename,url:imagePath+req.file.filename});
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 			}
 		});		
 	});	
 
 	app.delete('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('delete image');
+		logger.info('inside delete image'); 
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(204).json({message:"book does not exists"}); }else{
@@ -544,21 +916,26 @@ app.post('/user/register',(req,res)=>{
 									connection.query('UPDATE book SET image=? WHERE id =?',[null,req.params.id],function (erro, findR) {
 										if(erro) res.status(404).json({message:"Not Found"});
 										if(findR.affectedRows){
+											logger.info("deleted successfully"); 
 											res.json({message:"deleted successfully"});
 										}	
 									});
 								}else{
+									logger.info("No image Content to delete"); 
 									res.status(204).json({message:"No image Content to delete"});
 								}
 							});
 							}else{
+								logger.info("Image doesnot belong to this book"); 
 								res.status(204).json({message:"Image doesnot belong to this book"});	
 							}
 						}else{
+							logger.info("image does not exists in table"); 
 							res.status(204).json({message:"image does not exists in table"});
 						}	
 					});		
 				}else {
+					logger.error("image does not exists in table"); 
 					res.status(204).json({message:"image does not exists in table"});
 				}
 			}
@@ -566,23 +943,37 @@ app.post('/user/register',(req,res)=>{
 	});	
 
 	app.get('/book/:id/image/:imgid', (req, res) => {
+		sdc.increment('get image');
 		connection.query('SELECT * FROM book WHERE id =?',[req.params.id],function (erro, find) {
 			if(erro) res.status(403).json({message:"Error occurred"});
 			if(find.length == 0){ res.status(403).json({message:"book does not exists"}); }else{
 				if(find[0].image != null){
+<<<<<<< HEAD
+					connection.query('SELECT * FROM image WHERE img_id = ?',[req.params.imgid],function (error,resultSelect, field) {
+						if(error) {
+							logger.error("No image Content to delete"); 
+							res.status(204).json({message:"No image Content to delete"}); 
+						}if(resultSelect.length > 0){
+							if(resultSelect[0].img_id == find[0].image){
+								res.json({id:resultSelect[0].img_id,url:imagePath+resultSelect[0].url});
+=======
 					connection.query('SELECT * FROM image WHERE id = ?',[req.params.imgid],function (error,resultSelect, field) {
 						if(error) res.status(204).json({message:"No image Content to delete"}); 
 						if(resultSelect.length > 0){
 							if(resultSelect[0].id == find[0].image){
 								res.json({id:resultSelect[0].id,url:imagePath+resultSelect[0].url});
+>>>>>>> b190ddeffbb5bb56d48473437f42573c214f9874
 							}else{
+								logger.error("Image doesnot belong to this book"); 
 								res.status(404).json({message:"Image doesnot belong to this book"});	
 							}
 						}else{
+							logger.error("image does not exists in table"); 
 							res.status(404).json({message:"image does not exists in table"});
 						}	
 					});		
 				}else {
+					logger.error("Book does not Exists"); 
 					res.status(404).json({message:"Book does not Exists"});
 				}
 			}
