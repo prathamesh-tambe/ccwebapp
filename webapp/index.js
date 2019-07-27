@@ -551,7 +551,7 @@ app.post('/user/register',(req,res)=>{
 	
 	//book update app	
 	app.put('/book', (req, res) => {
-		sdc.increment('update book',1);
+		sdc.increment('update book');
 		logger.info("inside update book"); 
 		let id = req.body.id.trim();
 		let title = req.body.title.trim();
