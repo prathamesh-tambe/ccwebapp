@@ -359,7 +359,7 @@ app.post('/user/register',(req,res)=>{
 
 
 
-	app.get('/bookprathamesh' , (req, res )=>{
+	app.get('/book' , (req, res )=>{
 		//res.json({msg : 'in book app'});
 		sdc.increment('get all books');
 		logger.info("insdie get all books");
