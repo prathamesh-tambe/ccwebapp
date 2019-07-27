@@ -25,12 +25,12 @@ var SDC = require('statsd-client'),
 	});
 	 
 	const logger = log4js.getLogger('logs');
-	logger.trace('Entering cheese testing');
+	/*logger.trace('Entering cheese testing');
 	logger.debug('Got cheese.');
 	logger.info('Cheese is Comté.');
 	logger.warn('Cheese is quite smelly.');
 	logger.error('Cheese is too ripe!');
-	logger.fatal('Cheese was breeding ground for listeria.');
+	logger.fatal('Cheese was breeding ground for listeria.');*/
 
 /*	
 	var logger = require('./log.js');
@@ -743,7 +743,8 @@ app.post('/user/register',(req,res)=>{
 */
 	app.post('/book/:id/image', (req, res) => {
 		sdc.increment('upload image');
-	//console.log("--------------",req.route);
+		logger.info('inside upload image'); 
+		//console.log("--------------",req.route);
 		req.do = 'upload';
 		upload(req, res, function (err) {
 			console.log("req--------0",err);
