@@ -317,7 +317,7 @@ app.post('/user/register',(req,res)=>{
 														}
 														else{
 																console.log("sns publish success"+ data);
-																res.json({msg: data});
+																//res.json({msg: data});
 														}
 												})
 										}
