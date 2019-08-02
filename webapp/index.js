@@ -292,36 +292,38 @@ app.post('/user/register',(req,res)=>{
 				}else{
 					if(results.length > 0){
 
-						console.log("api name last llink",this.href.substring(this.href.lastIndexOf('/') + 1));
-						if(this.href.substring(this.href.lastIndexOf('/') + 1) == 'reset'){
-							var abc = {};
-							var arn;
-							var msg;
-							var sns = new aws.SNS();
+						console.log("api name last llink",req.url);
+						if(req.url == '/reset'){
+								var abc = {};
+								var arn;
+								var msg;
+								aws.config.update({region:'us-east-1'});
+								var sns = new aws.SNS();
 
-							sns.listTopics(abc, (err, data)=>{
-								if(err){
-									console.log('err in sns listTopics')
-								}else{
-									arn = data.Topics[0].TopicArn;
-									msg = username
-
-									var params = {
-										Message : msg,
-										TopicArn: arn
-									};
-									sns.publish(params, (err, data)=>{
+								sns.listTopics(abc, (err, data)=>{
 										if(err){
-											console.log("err in sns publish");
+												console.log('err in sns listTopics',err);
+										}else{
+												arn = data.Topics[0].TopicArn;
+												msg = username
+
+												var params = {
+														Message : msg,
+														TopicArn: arn
+												};
+												sns.publish(params, (err, data)=>{
+														if(err){
+																console.log("err in sns publish");
+														}
+														else{
+																console.log("sns publish success"+ data);
+																res.json({msg: data});
+														}
+												})
 										}
-										else{
-											console.log("sns publish success"+ data);
-											res.json({msg: data});
-											}
-										})
-									}
 								})
-							}
+								res.status(200).json({message:'working reset'});
+						}
 
 						bcrypt.compare(password, results[0].password, function(err, resv) {
 							console.log("res---------",resv);    				
