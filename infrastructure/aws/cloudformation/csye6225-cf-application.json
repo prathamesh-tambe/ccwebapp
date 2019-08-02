@@ -25,6 +25,9 @@
        "NameTag":{
          "Type":"String"
        },
+       "codedeploybucket":{
+         "Type":"String"
+       },
        "webappbucket":{
          "Type":"String"
        }
@@ -211,5 +214,7 @@
                 "StorageType" : "gp2"
             }
         }
+        
+
     }
 }
