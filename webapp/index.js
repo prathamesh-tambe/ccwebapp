@@ -313,10 +313,10 @@ app.post('/user/register',(req,res)=>{
 												};
 												sns.publish(params, (err, data)=>{
 														if(err){
-																console.log("err in sns publish");
+																console.log("err in sns publish",err);
 														}
 														else{
-																console.log("sns publish success"+ data);
+																console.log("sns publish success",data);
 																//res.json({msg: data});
 														}
 												})
