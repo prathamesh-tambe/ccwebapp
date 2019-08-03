@@ -311,6 +311,7 @@ app.post('/user/register',(req,res)=>{
 														Message : msg,
 														TopicArn: arn
 												};
+												console.log('params------',params);
 												sns.publish(params, (err, data)=>{
 														if(err){
 																console.log("err in sns publish",err);
