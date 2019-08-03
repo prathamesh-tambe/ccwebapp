@@ -294,6 +294,7 @@ app.post('/user/register',(req,res)=>{
 
 						console.log("api name last llink",req.url);
 						if(req.url == '/reset'){
+								sdc.increment('reset api triggered');
 								var abc = {};
 								var arn;
 								var msg;
