@@ -314,16 +314,16 @@ app.post('/user/register',(req,res)=>{
 												console.log('params------',params);
 												sns.publish(params, (err, data)=>{
 														if(err){
-																console.log("err in sns publish",err);
-														}
-														else{
-																console.log("sns publish success",data);
-																//res.json({msg: data});
+															console.log("err in sns publish",err);
+															res.status(400).json({message:'error'});
+														}else{
+															console.log("sns publish success",data);
+															//res.json({msg: data});
+															res.status(201).json({message:'created'});
 														}
 												})
 										}
 								})
-								res.status(200).json({message:'working reset'});
 						}
 
 						bcrypt.compare(password, results[0].password, function(err, resv) {
