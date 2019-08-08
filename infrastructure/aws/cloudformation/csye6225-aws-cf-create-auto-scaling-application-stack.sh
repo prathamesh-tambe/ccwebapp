@@ -42,7 +42,9 @@ echo $subnet2
 subnet3=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az3" --query 'Subnets[*].{id:SubnetId}' --output text`
 echo "Subnet3:"
 echo $subnet3
-
+subnet4=`aws ec2 describe-subnets --filter "Name=tag:Name,Values=${vpcname}-public-az4" --query 'Subnets[*].{id:SubnetId}' --output text`
+echo "Subnet4:"
+echo $subnet4
 
 
 getStackStatus() {
@@ -90,7 +92,7 @@ aws cloudformation create-stack \
 	--stack-name $Stack_Name  \
 	--template-body $file_dir_var \
         --capabilities CAPABILITY_NAMED_IAM \
-	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId 		ParameterKey="subnet1",ParameterValue=$subnet1 ParameterKey="subnet2",ParameterValue=$subnet2 ParameterKey="subnet3",ParameterValue=$subnet3 ParameterKey="vpcId",ParameterValue=$vpcId ParameterKey="vpcname",ParameterValue=$vpcname ParameterKey="NameTag",ParameterValue=$Stack_Name ParameterKey="webappbucket",ParameterValue=$ImageBucket ParameterKey="codedeploybucket",ParameterValue=$codedeploybucket \
+	--parameters ParameterKey="keyname",ParameterValue=$KEY_CHOSEN ParameterKey="AmiId",ParameterValue=$amiId 		ParameterKey="subnet1",ParameterValue=$subnet1 ParameterKey="subnet2",ParameterValue=$subnet2 ParameterKey="subnet3",ParameterValue=$subnet3  ParameterKey="subnet4",ParameterValue=$subnet4 ParameterKey="vpcId",ParameterValue=$vpcId ParameterKey="vpcname",ParameterValue=$vpcname ParameterKey="NameTag",ParameterValue=$Stack_Name ParameterKey="webappbucket",ParameterValue=$ImageBucket ParameterKey="codedeploybucket",ParameterValue=$codedeploybucket \
 	--disable-rollback
 
 
