@@ -1,5 +1,10 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+       "loadBalancerArn":{
+           "Type":"String"
+       }
+    },
     "Resources":{
         "Sqliset":{
           "Type":"AWS::WAFRegional::SqlInjectionMatchSet",
@@ -675,7 +680,7 @@
         "ALBAssociation":{
             "Type":"AWS::WAFRegional::WebACLAssociation",
             "Properties":{
-                "ResourceArn":{"Fn::ImportValue" : "LoadBalancerArn"},
+                "ResourceArn":{"Ref" : "loadBalancerArn"},
                 "WebACLId":{"Ref":"ACL"}
             }
         }

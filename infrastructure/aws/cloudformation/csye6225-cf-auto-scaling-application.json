@@ -31,6 +31,21 @@
        "codedeploybucket":{
          "Type":"String"
        },
+        "CertificateARN": {
+            "Type": "String"
+        },
+        "CertificateARN2":{
+          "Type":"String"
+        },
+        "CodeDeployServiceRoleArn":{
+          "Type":"String"
+        },
+        "DomainName":{
+          "Type":"String"
+        },
+        "domainName53":{
+          "Type":"String"
+        },
        "webappbucket":{
          "Type":"String"
        }
@@ -44,10 +59,10 @@
                 "KeyName": {
                     "Ref": "keyname"
                 },
-                "LaunchConfigurationName" : "asg_launch_config",
+                "LaunchConfigurationName" : "asglaunchconfig",
                 "IamInstanceProfile": "CodeDeployEC2ServiceRoleProfile",
                 "AssociatePublicIpAddress": true,
-                "SecurityGroupIds": [
+                "SecurityGroups": [
                     {
                         "Ref": "webappsecuritygroup"
                     }
@@ -62,14 +77,6 @@
                         }
                     }
                 ],
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": {
-                            "Ref": "NameTag"
-                        }
-                    }
-		        ],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
@@ -134,12 +141,12 @@
                     }
                 ],
                 "LaunchConfigurationName": {
-                    "Ref": "asg_launch_config"
+                    "Ref": "asglaunchconfig"
                 },
                 "MinSize": "3",
                 "MaxSize": "7",
                 "Cooldown": "60",
-                "DesiredCapacity": "3",
+                "DesiredCapacity":"3",
                 "TargetGroupARNs": [
                     {
                         "Ref": "ALBTargetGroup"
@@ -414,7 +421,24 @@
             }
         },
 
-
+        "DNSRecord":{
+          "Type":"AWS::Route53::RecordSetGroup",
+          "Properties":{
+              "HostedZoneName":{"Ref":"domainName53"},
+              "RecordSets":[{
+                  "Name":{"Ref":"domainName53"},
+                  "Type":"A",
+                  "AliasTarget":{
+                      "DNSName":{
+                          "Fn::GetAtt":["AppLoadBalancer","DNSName"]
+                      },
+                      "HostedZoneId":{
+                          "Fn::GetAtt":["AppLoadBalancer","CanonicalHostedZoneID"]
+                      }
+                  }
+              }]
+          }
+        },
 
 
 
@@ -460,85 +484,6 @@
             }
         },
 
-        "loadbalancersecuritygroup":{
-            "Type":"AWS::EC2::SecurityGroup",
-            "Properties":{
-                "GroupName":"LoadBalancer-Security-Group",
-                "GroupDescription": "Enable HTTP and SSH access",
-                "VpcId":{"Ref":"vpcId"},
-                "SecurityGroupIngress":[
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": 443,
-                        "ToPort": 443,
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": 22,
-                        "ToPort": 22,
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": 3000,
-                        "ToPort": 3000,
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": 80,
-                        "ToPort": 80,
-                        "CidrIp": "0.0.0.0/0"
-                    }],
-            "SecurityGroupEgress":[
-                {
-                    "IpProtocol":"tcp",
-                    "FromPort":3000,
-                    "ToPort":3000,
-                    "DestinationSecurityGroupId":{
-                        "Fn::GetAtt":["webappsecuritygroup","GroupId"]
-                    }
-                }
-                ]
-            }
-        },
-
-        "dbsubnetgroup": {
-            "Type": "AWS::RDS::DBSubnetGroup",
-            "Properties": {
-                "DBSubnetGroupDescription": "Subnet description of db subnets",
-                "SubnetIds": [
-                    {"Ref": "subnet2"},
-                    {"Ref": "subnet3"}
-                ]
-            }
-        },
-        "webappsecuritygroup": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "VpcId": {
-                    "Ref": "vpcId"
-                },
-                "GroupDescription": "Security group for web server",
-                "SecurityGroupIngress": [
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": 22,
-                        "ToPort": 22,
-                        "CidrIp": "0.0.0.0/0"
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": 3000,
-                        "ToPort": 3000,
-                        "SourceSecurityGroupId": {
-                            "Ref": "loadbalancersecuritygroup"
-                        }
-                    }
-                ]
-            }
-        },
         "loadbalancersecuritygroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
@@ -553,7 +498,23 @@
                         "FromPort": 443,
                         "ToPort": 443,
                         "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 80,
+                        "ToPort": 80,
+                        "CidrIp": "0.0.0.0/0"
                     }
+                ],
+                "SecurityGroupEgress":[
+                {
+                    "IpProtocol":"tcp",
+                    "FromPort":3000,
+                    "ToPort":3000,
+                    "DestinationSecurityGroupId":{
+                        "Fn::GetAtt":["webappsecuritygroup","GroupId"]
+                    }
+                }
                 ]
             }
         },
@@ -621,17 +582,39 @@
                 "StorageType" : "gp2"
             }
         },
-
-    "Outputs": {
-        "ALBARN": {
-            "Value": {
-                "Ref": "AppLoadBalancer"
-            },
-            "Export": {
-                "Name": "LoadBalancerArn"
+        "codedeployapplication":{
+            "Type":"AWS::CodeDeploy::Application",
+            "Properties":{
+                "ApplicationName":"csye6225-webapp"
+            }
+        },
+        "Deploymentgroup":{
+            "Type":"AWS::CodeDeploy::DeploymentGroup",
+            "Properties":{
+                "ApplicationName":{"Ref":"codedeployapplication"},
+                "DeploymentGroupName":"csye6225-webapp-deployment",
+                "DeploymentConfigName": "CodeDeployDefault.OneAtATime",
+                "AutoScalingGroups": [{"Ref": "server"}],
+                "LoadBalancerInfo": {
+                    "TargetGroupInfoList": [{
+                            "Name": {"Fn::GetAtt": ["ALBTargetGroup","TargetGroupName"]}
+                        }]
+                },
+                "AutoRollbackConfiguration":{"Enabled":"True","Events":["DEPLOYMENT_FAILURE"]},
+                "ServiceRoleArn":{"Ref":"CodeDeployServiceRoleArn"},
+                "DeploymentStyle":{
+                    "DeploymentType":"IN_PLACE",
+                    "DeploymentOption": "WITHOUT_TRAFFIC_CONTROL"
+                },
+                "Ec2TagFilters":[{
+                    "Key" : "Name",
+                    "Type":"KEY_AND_VALUE",
+                    "Value":{"Ref":"NameTag"}
+                }]
             }
         }
-    }
+
+
         
 
     }
