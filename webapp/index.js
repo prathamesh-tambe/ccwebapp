@@ -291,7 +291,7 @@ app.post('/user/register',(req,res)=>{
 					res.status(401).json({ message : 'No such user' });
 				}else{
 					if(results.length > 0){
-
+						
 						console.log("api name last llink",req.url);
 						if(req.url == '/reset'){
 								sdc.increment('reset api triggered');
