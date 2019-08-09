@@ -7,7 +7,7 @@ echo "Please Enter Your Domain Name:"
 read domainName
 
 codedeploybucket="code-deploy."$domainName
-echo "Your code deploy bucket is: "$domainName
+echo "Your code deploy bucket is: "$codedeploybucket
 ImageBucket=$domainName".csye6225.com"
 echo "Your bucket for images is: "$ImageBucket
 domainName53=$domainName"."
