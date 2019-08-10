@@ -567,10 +567,23 @@ app.post('/user/register',(req,res)=>{
 									logger.error("error occured while inserting image"); 
 									res.status(404).json({message:"error occured while inserting image"});
 								}
+								
 								if(findRe.affectedRows > 0){
-									res.status(201).json({ message:'created' });
+									connection.query('SELECT * FROM book WHERE id = ?',[results.insertId],function (erro, bookinfo) {
+										if(erro){
+											res.status(403).json({"message":erro});
+										}else{
+											res.status(200).json(bookinfo);
+										}
+									})
 								}else{
-									res.status(201).json({ message:'created' });
+									connection.query('SELECT * FROM book WHERE id = ?',[results.insertId],function (erro, bookinfo) {
+										if(erro){
+											res.status(403).json({"message":erro});
+										}else{
+											res.status(200).json(bookinfo);
+										}
+									})
 								}
 							});
 						}else{
