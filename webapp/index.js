@@ -559,6 +559,7 @@ app.post('/user/register',(req,res)=>{
 					logger.error(error); 
 					throw res.status(400).json({ message:"connection error",err:error });
 				}else{
+					let newr = results;
 					//console.log("result-----",results);
 					if(results){
 						if(url){
@@ -591,7 +592,7 @@ app.post('/user/register',(req,res)=>{
 								if(erro){
 									res.status(403).json({"message":erro});
 								}else{
-									res.status(200).json(fields);
+									res.status(200).json(newr);
 								}
 							})
 						}
