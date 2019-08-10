@@ -66,7 +66,7 @@ connection.connect(function(err) {
 		    if(find.warningCount == 1) { console.log("users already exists"); }
 		    else{ logger.info('users table created successfully'); console.log(find,"users table created successfully"); }
 		});
-		connection.query('CREATE TABLE IF NOT EXISTS `book` (`id` VARCHAR(255) NOT NULL,`title` VARCHAR(255) NOT NULL,`author` VARCHAR(100) NULL,`isbn` VARCHAR(255) NULL,`quantity` INT NULL,`image` VARCHAR(255),PRIMARY KEY (`id`));',function (erro, find) {
+		connection.query('CREATE TABLE IF NOT EXISTS `book` (`bid` INT NOT NULL AUTO_INCREMENT,`id` VARCHAR(255) NOT NULL,`title` VARCHAR(255) NOT NULL,`author` VARCHAR(100) NULL,`isbn` VARCHAR(255) NULL,`quantity` INT NULL,`image` VARCHAR(255),PRIMARY KEY (`bid`));',function (erro, find) {
 		    if(find.warningCount == 1) { console.log("books already exists"); }
 		    else{ logger.info('book table created successfully'); console.log(find,"book table created successfully"); }
 		});
@@ -592,7 +592,7 @@ app.post('/user/register',(req,res)=>{
 								if(erro){
 									res.status(403).json({"message":erro});
 								}else{
-									res.status(200).json(newr);
+									res.status(200).json(bookinfo);
 								}
 							})
 						}
