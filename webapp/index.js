@@ -581,7 +581,7 @@ app.post('/user/register',(req,res)=>{
 										if(erro){
 											res.status(403).json({"message":erro});
 										}else{
-											res.status(200).json(results);
+											res.status(200).json(bookinfo);
 										}
 									})
 								}
