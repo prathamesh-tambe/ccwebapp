@@ -587,7 +587,13 @@ app.post('/user/register',(req,res)=>{
 								}
 							});
 						}else{
-							res.status(201).json({ message:'created' });
+							connection.query('SELECT * FROM book WHERE id = ?',[results.insertId],function (erro, bookinfo) {
+								if(erro){
+									res.status(403).json({"message":erro});
+								}else{
+									res.status(200).json(bookinfo);
+								}
+							})
 						}
 				}else{
 					logger.error(error); 
