@@ -569,25 +569,25 @@ app.post('/user/register',(req,res)=>{
 								}
 								
 								if(findRe.affectedRows > 0){
-									connection.query('SELECT * FROM book WHERE id = ?',[results.insertId],function (erro, bookinfo) {
+									connection.query('SELECT LAST_INSERT_ID();',function (erro, bookinfo) {
 										if(erro){
 											res.status(403).json({"message":erro});
 										}else{
-											res.status(200).json(bookinfo);
+											res.status(200).json(results);
 										}
-									})
+									})		
 								}else{
-									connection.query('SELECT * FROM book WHERE id = ?',[results.insertId],function (erro, bookinfo) {
+									connection.query('SELECT LAST_INSERT_ID();',function (erro, bookinfo) {
 										if(erro){
 											res.status(403).json({"message":erro});
 										}else{
-											res.status(200).json(bookinfo);
+											res.status(200).json(results);
 										}
 									})
 								}
 							});
 						}else{
-							connection.query('SELECT * FROM book WHERE id = ?',[results.insertId],function (erro, bookinfo) {
+							connection.query('SELECT LAST_INSERT_ID();',function (erro, bookinfo) {
 								if(erro){
 									res.status(403).json({"message":erro});
 								}else{
