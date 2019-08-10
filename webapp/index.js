@@ -588,7 +588,7 @@ app.post('/user/register',(req,res)=>{
 								}
 							});
 						}else{
-							connection.query('SELECT * FROM book ORDER BY id DESC LIMIT 1',function (erro, bookinfo) {
+							connection.query('SELECT * FROM book ORDER BY bid DESC LIMIT 1',function (erro, bookinfo) {
 								if(erro){
 									res.status(403).json({"message":erro});
 								}else{
