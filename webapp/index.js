@@ -327,23 +327,23 @@ app.post('/user/register',(req,res)=>{
 												})
 										}
 								})
-						}else{
-							bcrypt.compare(password, results[0].password, function(err, resv) {
-								console.log("res---------",resv);    				
-								// res == true
-								if (error){
-									logger.error(error);
-									throw error;	
-								} 	
-								if(resv){
-									next();
-									//res.json({ crrdate : new Date().toISOString() });
-								}else{
-									logger.error('password does not match');
-									res.status(401).json({ message : 'password does not match' });
-								}
-							});	
 						}
+
+						bcrypt.compare(password, results[0].password, function(err, resv) {
+							console.log("res---------",resv);    				
+							// res == true
+							if (error){
+								logger.error(error);
+								throw error;	
+							} 	
+							if(resv){
+								next();
+								//res.json({ crrdate : new Date().toISOString() });
+							}else{
+								logger.error('password does not match');
+								res.status(401).json({ message : 'password does not match' });
+							}
+						});	
 					}else{
 						logger.error('user does not exists');
 						console.log('Data is false', results.length)
